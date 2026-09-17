@@ -1,0 +1,1405 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GrowwZ First-Investor Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --ground:#E9F0EB; --surface:#FFFFFF; --surface-2:#F4F8F5; --ink:#14221B; --muted:#5A6A62; --line:#DAE4DD;
+  --brand:#0E7A5A; --brand-ink:#FFFFFF; --brand-soft:#DCF0E6;
+  --sun:#E89A22; --sun-soft:#FDF0DA; --sun-ink:#6A4200;
+  --warn:#B4412A; --warn-soft:#FBE6E0;
+  --r1:#1E9E6A; --r2:#7AAE3A; --r3:#DB9A1A; --r4:#D5553A;
+  --exp:#9AA9A1; --gold:#B98A2E;
+  --shadow:0 24px 60px -24px rgba(20,50,35,.35);
+  --display:"Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
+  --body:"Figtree", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#0B1310; --surface:#15201B; --surface-2:#1B2822; --ink:#E5EEE9; --muted:#95A79E; --line:#2A3832;
+    --brand:#3CC393; --brand-ink:#05140D; --brand-soft:#16382B;
+    --sun:#F4B650; --sun-soft:#382A12; --sun-ink:#F7D69A;
+    --warn:#F08A70; --warn-soft:#3A1E17; --exp:#56675F; --gold:#D6AE5C;
+    --shadow:0 24px 60px -24px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0B1310; --surface:#15201B; --surface-2:#1B2822; --ink:#E5EEE9; --muted:#95A79E; --line:#2A3832;
+  --brand:#3CC393; --brand-ink:#05140D; --brand-soft:#16382B;
+  --sun:#F4B650; --sun-soft:#382A12; --sun-ink:#F7D69A;
+  --warn:#F08A70; --warn-soft:#3A1E17; --exp:#56675F; --gold:#D6AE5C;
+  --shadow:0 24px 60px -24px rgba(0,0,0,.7);
+}
+*{box-sizing:border-box}
+html{color-scheme:light dark;-webkit-text-size-adjust:100%}
+[hidden]{display:none!important}
+img{max-width:100%}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45;padding-inline:16px;padding-block:28px}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.wrap{max-width:1040px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:48px;align-items:start}
+
+/* side panel */
+.side{padding-top:24px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 24px)}
+.side .kicker{font-size:12px;color:var(--muted);margin:0 0 14px;letter-spacing:.01em}
+.side h1{font-family:var(--display);font-weight:700;font-size:44px;line-height:1;letter-spacing:-.02em;margin:0 0 12px;text-wrap:balance}
+.side h1 span{color:var(--brand)}
+.side p.lede{color:var(--muted);max-width:44ch;margin:0 0 24px;font-size:16px}
+.label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600;margin:0 0 8px}
+.jump{display:flex;flex-direction:column;gap:2px;margin-bottom:20px;max-width:340px}
+.jump button{display:flex;gap:12px;align-items:baseline;text-align:left;background:none;border:0;padding:7px 12px;border-radius:10px;font-weight:600}
+.jump button small{font-weight:400;color:var(--muted)}
+.jump button:hover{background:var(--surface-2)}
+.jump button[aria-current="true"]{background:var(--surface);box-shadow:0 1px 0 var(--line)}
+.jump button b{font-family:var(--display);color:var(--brand);width:14px;font-variant-numeric:tabular-nums}
+.jump.also button b{color:var(--muted)}
+.notes{font-size:13px;color:var(--muted);max-width:40ch;display:flex;flex-direction:column;gap:6px}
+.linkbtn{background:none;border:0;padding:0;color:var(--brand);font-weight:600;text-decoration:underline;text-underline-offset:3px}
+
+/* phone */
+.phone{width:100%;max-width:400px;height:800px;background:var(--surface-2);border:1px solid var(--line);border-radius:40px;box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;position:relative;margin-inline:auto}
+.status{display:flex;justify-content:space-between;padding:14px 28px 6px;font-size:12px;font-weight:600;flex:none}
+.scr{flex:1;overflow-y:auto;overflow-x:hidden;padding:8px 20px 24px;display:flex;flex-direction:column;gap:14px;scrollbar-width:thin}
+.tabs{flex:none;display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);background:var(--surface);padding:8px 8px 14px}
+.tabs button{background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:600;color:var(--muted);padding:6px 0;border-radius:12px}
+.tabs button svg{width:22px;height:22px}
+.tabs button[aria-current="true"]{color:var(--brand)}
+.status{align-items:center}
+.demo-flag{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:var(--sun-soft);color:var(--sun-ink);padding:3px 8px;border-radius:99px;z-index:2}
+
+/* building blocks */
+h2.t{font-family:var(--display);font-weight:700;font-size:28px;line-height:1.08;letter-spacing:-.015em;margin:6px 0 0;text-wrap:balance}
+h3.t{font-family:var(--display);font-weight:700;font-size:19px;line-height:1.15;margin:0;text-wrap:balance}
+.sub{color:var(--muted);margin:0}
+.card{background:var(--surface);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.card.hero{background:var(--brand);color:var(--brand-ink)}
+.card.hero .sub{color:inherit;opacity:.82}
+.card.tip{background:var(--sun-soft);color:var(--sun-ink)}
+.row{display:flex;align-items:center;gap:10px}
+.between{justify-content:space-between}
+.btn{border:0;border-radius:14px;padding:14px 18px;font-weight:700;background:var(--brand);color:var(--brand-ink);width:100%;font-size:16px}
+.btn.ghost{background:transparent;color:var(--brand);border:1.5px solid var(--line)}
+.btn.light{background:var(--brand-ink);color:var(--brand)}
+.btn.sm{padding:10px 12px;font-size:14px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.small{font-size:13px}
+.xs{font-size:12px}
+.muted{color:var(--muted)}
+.num{font-variant-numeric:tabular-nums}
+.big{font-family:var(--display);font-weight:700;font-size:30px;letter-spacing:-.02em;line-height:1}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:99px;font-size:12px;font-weight:600;background:var(--surface-2);white-space:nowrap}
+.pill.brand{background:var(--brand-soft);color:var(--brand)}
+.pill.sun{background:var(--sun-soft);color:var(--sun-ink)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.term{background:none;border:0;padding:0;font-weight:600;color:inherit;text-decoration:underline dotted;text-decoration-thickness:1.5px;text-underline-offset:3px;cursor:help}
+.bar{height:8px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+.card.hero .bar{background:rgba(255,255,255,.22)}
+.bar i{display:block;height:100%;background:var(--brand);border-radius:99px;transition:width .5s}
+.card.hero .bar i{background:var(--brand-ink)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips.scroll{flex-wrap:nowrap;overflow-x:auto;margin-inline:-20px;padding-inline:20px;scrollbar-width:none}
+.chip{border:1.5px solid var(--line);background:var(--surface);border-radius:99px;padding:8px 14px;font-weight:600;font-size:13px;white-space:nowrap}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:var(--surface-2);border-radius:12px;padding:3px;gap:3px}
+.seg button{border:0;background:none;border-radius:9px;padding:8px 4px;font-weight:600;font-size:12px;line-height:1.2}
+.seg button[aria-pressed="true"]{background:var(--surface);box-shadow:0 1px 3px rgba(0,0,0,.12);color:var(--brand)}
+.opt{display:flex;gap:12px;align-items:center;text-align:left;border:1.5px solid var(--line);background:var(--surface);border-radius:16px;padding:13px 14px;width:100%}
+.opt[aria-pressed="true"]{border-color:var(--brand);background:var(--brand-soft)}
+.opt .ic{flex:none;width:40px;height:40px;border-radius:12px;background:var(--surface-2);display:grid;place-items:center;color:var(--brand)}
+.opt[aria-pressed="true"] .ic{background:var(--surface)}
+.opt .ic svg{width:22px;height:22px}
+.opt strong{display:block}
+.opt span.d{font-size:13px;color:var(--muted)}
+.back{background:none;border:0;padding:6px 0;font-weight:600;color:var(--muted)}
+.dots{display:flex;gap:6px;align-items:center}
+.dots i{height:6px;width:14px;border-radius:9px;background:var(--line)}
+.dots i.on{background:var(--brand);width:24px}
+.field{border:1.5px solid var(--line);border-radius:14px;padding:13px 14px;background:var(--surface);width:100%;font-size:16px}
+.risk{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:var(--muted)}
+.risk span.m{display:inline-flex;gap:2px;align-items:flex-end}
+.risk span.m i{width:4px;border-radius:2px;background:var(--line)}
+.stack{display:flex;height:14px;border-radius:99px;overflow:hidden;gap:3px}
+.stack i{display:block;height:100%;min-width:0;transition:width .3s}
+.sw{width:10px;height:10px;border-radius:3px;flex:none;display:inline-block}
+.divider{height:1px;background:var(--line);margin:2px 0}
+.steps{display:flex;flex-direction:column;gap:12px;margin:0;padding:0;list-style:none;counter-reset:s}
+.steps li{display:flex;gap:12px;counter-increment:s}
+.steps li::before{content:counter(s);flex:none;width:24px;height:24px;border-radius:50%;background:var(--surface-2);display:grid;place-items:center;font-weight:700;font-size:12px}
+.steps li.done::before{content:"✓";background:var(--brand);color:var(--brand-ink)}
+input[type=range]{width:100%;accent-color:var(--brand);margin:0}
+
+/* onboarding */
+.qnum{font-size:12px;font-weight:700;color:var(--brand)}
+.slip{background:var(--ink);color:var(--surface);border-radius:20px;padding:16px 18px;display:flex;flex-direction:column;gap:4px;font-variant-numeric:tabular-nums}
+.slip .k{font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.65;font-weight:600}
+.slip .amt{font-family:var(--display);font-weight:700;font-size:38px;letter-spacing:-.02em;line-height:1.05}
+.slip .meta{font-size:12px;opacity:.7;display:flex;justify-content:space-between}
+.money{display:flex;flex-direction:column;gap:6px}
+.money label{font-weight:600;font-size:14px}
+.money label small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+.money .in{display:flex;align-items:center;border:1.5px solid var(--line);border-radius:14px;background:var(--surface);padding-left:14px}
+.money .in:focus-within{border-color:var(--brand)}
+.money .in span{font-weight:700;color:var(--muted)}
+.money .in input{border:0;background:none;padding:12px 14px 12px 6px;width:100%;font-size:18px;font-weight:700;font-variant-numeric:tabular-nums;outline:none}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.notice{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}
+.notice li{display:flex;gap:10px;font-size:13px}
+.notice li::before{content:"";flex:none;width:6px;height:6px;border-radius:50%;background:var(--brand);margin-top:7px}
+.notice li.w::before{background:var(--warn)}
+.whybox{border-radius:16px;background:var(--surface);border:1.5px dashed var(--line);padding:12px 14px;display:flex;flex-direction:column;gap:6px;font-size:13px}
+.whybox .eyebrow{color:var(--brand)}
+.whybox .effect{display:flex;gap:8px;padding-top:8px;border-top:1px solid var(--line);color:var(--ink);font-weight:600;animation:up .25s ease-out}
+.whybox .effect::before{content:"→";color:var(--brand)}
+.understood{display:flex;flex-direction:column;gap:0;margin:0;padding:0;list-style:none}
+.understood li{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:12px 0;border-bottom:1px solid var(--line)}
+.understood li:last-child{border-bottom:0}
+.understood .k{grid-column:1/-1;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.understood .said{font-weight:600}
+.understood .so{grid-column:1/2;font-size:13px;color:var(--brand)}
+.understood .linkbtn{grid-row:2;grid-column:2;font-size:12px;align-self:start}
+.edu{display:flex;gap:8px;align-items:flex-start;font-size:12px;color:var(--muted);border:1.5px dashed var(--line);border-radius:14px;padding:10px 12px}
+.edu b{color:var(--ink)}
+.checklist{display:flex;flex-direction:column;gap:10px;text-align:left;margin:0 auto;padding:0;list-style:none}
+.checklist li{display:flex;gap:10px;align-items:center;font-size:14px;opacity:0;animation:fadein .3s ease-out forwards}
+.checklist li::before{content:"✓";width:22px;height:22px;border-radius:50%;background:var(--brand);color:var(--brand-ink);display:grid;place-items:center;font-size:12px;font-weight:700;flex:none}
+@keyframes fadein{to{opacity:1}}
+
+/* plan */
+.why{display:flex;flex-direction:column;gap:12px;margin:0;padding:0;list-style:none}
+.why li{display:flex;flex-direction:column;gap:2px;padding-left:14px;border-left:3px solid var(--brand-soft)}
+.why li b{font-size:14px}
+.why li span{font-size:13px;color:var(--muted)}
+.whybtn{border:0;background:var(--brand-soft);color:var(--brand);font-weight:700;font-size:13px;padding:6px 12px;border-radius:99px}
+.ctl{display:flex;flex-direction:column;gap:6px}
+.ctl .row{justify-content:space-between}
+.ctl output{font-weight:700;font-variant-numeric:tabular-nums}
+.tri{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tri div{background:var(--surface-2);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:2px}
+.tri b{font-size:16px;font-variant-numeric:tabular-nums}
+.tri span{font-size:11px;color:var(--muted);line-height:1.25}
+.tri .end{background:var(--brand-soft)}
+.tri .end b{color:var(--brand)}
+svg.chart text{fill:var(--muted);font-size:10px;font-family:var(--body)}
+
+/* sheet explainer */
+.sec{display:flex;flex-direction:column;gap:4px}
+.sec h4{margin:0;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--brand)}
+.sec p{margin:0;font-size:14px}
+.sec.risk-sec h4{color:var(--warn)}
+.trace{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12px}
+.trace .arrow{color:var(--muted)}
+
+/* explore */
+.spectrum{position:relative;height:104px;margin:4px 6px 0}
+.spectrum .track{position:absolute;left:0;right:0;top:50px;height:6px;border-radius:9px;background:linear-gradient(90deg,var(--r1),var(--r2),var(--r3),var(--r4))}
+.spectrum button{position:absolute;top:44px;width:18px;height:18px;margin-left:-9px;border-radius:50%;border:3px solid var(--surface);background:var(--ink);padding:0}
+.spectrum button.mine{background:var(--brand);box-shadow:0 0 0 2px var(--brand)}
+.spectrum span{position:absolute;font-size:11px;font-weight:600;white-space:nowrap;line-height:1.1}
+.spectrum span.up{top:22px}
+.spectrum span.dn{top:70px}
+.ends{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);gap:12px}
+.group{display:flex;flex-direction:column;gap:10px}
+.group.dim{opacity:.6}
+.fit{font-size:11px}
+.orow{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line);width:100%;background:none;border-left:0;border-right:0;border-bottom:0;text-align:left}
+.orow div{flex:1;min-width:0}
+.orow .go{color:var(--brand);font-weight:700;font-size:13px}
+.cmp{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+.cmp th{font-size:11px;text-align:right;color:var(--muted);font-weight:600;padding:4px 0}
+.cmp th:first-child,.cmp td:first-child{text-align:left}
+.cmp td{padding:8px 0;border-top:1px solid var(--line);text-align:right}
+
+/* goals */
+.parts{display:flex;gap:3px;height:14px}
+.parts i{position:relative;display:block;height:100%;border-radius:4px;background:var(--surface-2);overflow:hidden}
+.parts i b{position:absolute;inset:0 auto 0 0;background:var(--brand);transition:width .5s}
+.plist{display:flex;flex-direction:column;gap:6px;margin:0;padding:0;list-style:none;font-size:13px}
+.plist li{display:flex;justify-content:space-between;gap:8px}
+.plist li span:first-child::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;border:1.5px solid var(--muted);margin-right:8px;vertical-align:1px}
+.plist li.done span:first-child::before{background:var(--brand);border-color:var(--brand)}
+.plist li.now span:first-child::before{border-color:var(--brand);background:var(--brand-soft)}
+.reason{font-family:var(--display);font-size:18px;line-height:1.25;margin:0;font-weight:500}
+
+/* chat */
+.msg{background:var(--surface);border-radius:20px 20px 20px 6px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.msg.me{background:var(--ink);color:var(--surface);border-radius:20px 20px 6px 20px;align-self:flex-end;max-width:85%}
+.msg h4{margin:0;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.msg p{margin:0}
+.ai{display:flex;flex-direction:column;gap:8px}
+.ai p{margin:0}
+.ai ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
+.msg .foot{font-size:11px;color:var(--muted);border-top:1px solid var(--line);padding-top:8px}
+.bot{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--brand)}
+.bot i{width:22px;height:22px;border-radius:8px;background:var(--brand);display:grid;place-items:center;color:var(--brand-ink);font-style:normal;font-size:12px}
+.typing{display:inline-flex;gap:4px;padding:4px 0}
+.typing i{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:blink 1.2s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
+.ctx{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.starter{display:flex;flex-direction:column;gap:8px}
+.starter button{text-align:left;border:1.5px solid var(--line);background:var(--surface);border-radius:14px;padding:11px 14px;font-weight:600;font-size:14px}
+.starter button:hover{border-color:var(--brand)}
+.composer{flex:none;display:flex;gap:8px;padding:10px 16px;background:var(--surface-2);border-top:1px solid var(--line)}
+.composer .field{padding:11px 14px;font-size:15px}
+.composer .btn{width:auto;padding:0 16px}
+.composer .btn.stop{background:var(--ink);color:var(--surface)}
+
+/* sheet + toast */
+.scrim{position:absolute;inset:0;background:rgba(8,20,14,.45);display:flex;align-items:flex-end;z-index:5}
+.sheet{background:var(--surface);width:100%;max-height:90%;overflow-y:auto;border-radius:24px 24px 0 0;padding:22px 20px 26px;display:flex;flex-direction:column;gap:14px;animation:up .22s ease-out}
+.toast{position:absolute;left:16px;right:16px;bottom:88px;background:var(--ink);color:var(--surface);padding:12px 14px;border-radius:14px;font-size:13px;font-weight:600;z-index:6;animation:up .22s ease-out}
+@keyframes up{from{transform:translateY(16px);opacity:.4}to{transform:none;opacity:1}}
+.pulse{width:64px;height:64px;border-radius:50%;background:var(--brand-soft);display:grid;place-items:center;margin:0 auto;animation:pulse 1.2s ease-in-out infinite}
+.pulse i{width:24px;height:24px;border-radius:50%;background:var(--brand)}
+@keyframes pulse{50%{transform:scale(1.12)}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}.checklist li{opacity:1}}
+
+@media (max-width: 880px){
+  .wrap{grid-template-columns:1fr;gap:20px}
+  .side{position:static;padding-top:0}
+  .side h1{font-size:34px}
+  .jump{flex-direction:row;flex-wrap:wrap;max-width:none;gap:6px;margin-bottom:12px}
+  .jump button{padding:7px 12px;background:var(--surface)}
+  .jump button small{display:none}
+  .notes{display:none}
+}
+@media (max-width: 440px){
+  body{padding-block:12px}
+  .phone{height:760px;border-radius:28px}
+}
+@media (max-width: 699px){
+  html,body{height:100%}
+  body{padding:0;overflow:hidden}
+  .wrap{display:block;max-width:none;height:100%}
+  .side{display:none}
+  .phone{max-width:none;width:100%;height:100vh;height:100dvh;border:0;border-radius:0;box-shadow:none;margin:0}
+  .status{padding:calc(env(safe-area-inset-top, 0px) + 10px) 16px 6px}
+  .status > span:first-child{display:none}
+  .scr{padding:8px 16px 20px;-webkit-overflow-scrolling:touch}
+  .chips.scroll{margin-inline:-16px;padding-inline:16px}
+  .tabs{padding:6px 4px calc(env(safe-area-inset-bottom, 0px) + 8px)}
+  .tabs button{min-height:48px}
+  .composer{padding:8px 12px calc(env(safe-area-inset-bottom, 0px) + 8px)}
+  .composer .field{font-size:16px;min-width:0}
+  .field,.money .in input{font-size:16px}
+  h2.t{font-size:26px}
+  .slip .amt{font-size:34px}
+  .tri{gap:6px}
+  .tri div{padding:8px;min-width:0}
+  .tri b{font-size:14px;overflow-wrap:anywhere}
+  .big{font-size:28px}
+  .toast{bottom:calc(env(safe-area-inset-bottom, 0px) + 84px)}
+  .sheet{padding-bottom:calc(env(safe-area-inset-bottom, 0px) + 22px)}
+  .row{min-width:0}
+  .orow .go{white-space:nowrap}
+  input[type=range]{height:28px}
+  .spectrum span{white-space:normal;max-width:64px;text-align:center}
+  .spectrum span.up{top:auto;bottom:64px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <aside class="side">
+    <p class="kicker">A prototype of a Gen Z-focused Groww experience, designed for first-time investors.</p>
+    <h1>GrowwZ: from your <span>first</span> paycheck to your first investment.</h1>
+    <p class="lede">A clickable concept for first-time investors in India aged 20–26. Five quick questions shape a starter plan, and the app shows you how each answer changed it. It's for learning only: no real money moves, and nothing here is financial advice.</p>
+    <p class="label">The journey</p>
+    <nav class="jump" id="jump"></nav>
+    <p class="label">Also in the app</p>
+    <nav class="jump also" id="jump2"></nav>
+    <div class="notes">
+      <div>Tap <b>Why this?</b> on any part of the plan to see how that choice was made.</div>
+      <div>Try the <b>What if?</b> sliders to see how the monthly amount and time change the outcome.</div>
+      <div><button class="linkbtn" id="reset">Start over from the first paycheck</button></div>
+    </div>
+  </aside>
+  <div class="phone" id="phone" aria-label="App prototype">
+    <div class="status"><span class="num">9:41</span><span class="demo-flag">Prototype</span><span>GrowwZ</span></div>
+    <div class="scr" id="scr"></div>
+    <div id="dock"></div>
+    <nav class="tabs" id="tabs"></nav>
+    <div id="overlay"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+const ICON = {
+  home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>',
+  explore:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>',
+  ask:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4z"/><path d="M9 10h.01M12 10h.01M15 10h.01"/></svg>',
+  goals:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>',
+  trip:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M2 16l20-8-4 12-6-4-4 3v-5z"/></svg>',
+  laptop:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="4" y="5" width="16" height="11" rx="1.5"/><path d="M2 19h20"/></svg>',
+  shield:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg>',
+  cap:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2 9 2 12 0v-5"/></svg>',
+  sprout:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21v-9"/><path d="M12 12C12 7 8 5 4 5c0 4 3 7 8 7z"/><path d="M12 14c0-4 3-6 8-6 0 4-3 6-8 6z"/></svg>',
+  calm:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12h18"/></svg>',
+  wave:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12c3-4 6 4 9 0s6 4 9 0"/></svg>',
+  zig:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16l5-8 4 6 4-9 5 11"/></svg>',
+  clock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+  phone:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/></svg>',
+  info:'<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="flex:none;margin-top:1px"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>'
+};
+
+const GOALS = {
+  trip:{label:'A trip with friends', short:'Goa trip', target:40000, icon:'trip', parts:[['Travel tickets',.3],['Place to stay',.4],['Food & fun',.3]]},
+  gadget:{label:'A new laptop or phone', short:'New laptop', target:60000, icon:'laptop', parts:[['The base model',.6],['The upgrade you wanted',.25],['Case & accessories',.15]]},
+  emergency:{label:'A safety cushion for surprises', short:'Safety cushion', target:null, icon:'shield', parts:[['1 month of expenses',1/3],['2 months',1/3],['3 months',1/3]]},
+  studies:{label:'Higher studies', short:'Higher studies', target:200000, icon:'cap', parts:[['Applications & tests',.1],['First term fees',.4],['Settling-in money',.5]]},
+  future:{label:'Just growing my money', short:'Future me', target:300000, icon:'sprout', parts:[['First step',1/6],['Halfway there',1/3],['Full target',.5]]}
+};
+const TIMES = {'1':{label:'Within a year', years:1, span:'less than a year'}, '3':{label:'In 1–3 years', years:2, span:'about 2 years'}, '5':{label:'3 years or more', years:5, span:'5 years or more'}};
+const COMFORT = {
+  nervous:{label:'Take it out, that feels scary', d:'Totally fair. Lots of people feel this way.', icon:'calm', said:'said dips make you uncomfortable', ctx:'would take the money out (dips make them nervous)'},
+  okay:{label:'Wait and see', d:'Small dips have often recovered with time, but not always.', icon:'wave', said:'said you’d wait out a small dip', ctx:'would wait and see (okay with small dips)'},
+  fine:{label:'Keep going, I’m in for years', d:'You’re okay with ups and downs.', icon:'zig', said:'said dips don’t bother you', ctx:'would keep investing (comfortable with ups and downs)'}
+};
+const CUSHION = {
+  yes:{label:'Yes, easily', d:'I have savings I can reach quickly.', said:'already have savings for surprises', ctx:'has savings for surprises'},
+  some:{label:'Probably, but it would hurt', d:'I have a little set aside.', said:'have a small cushion', ctx:'has a small cushion'},
+  none:{label:'Not really', d:'I’d have to borrow or wait.', said:'don’t have savings for surprises yet', ctx:'has no emergency savings yet'}
+};
+const RISK = {1:['Calm','var(--r1)'],2:['Small ups & downs','var(--r2)'],3:['Ups & downs','var(--r3)'],4:['Bumpy','var(--r4)']};
+const COLORS = {liquid:'var(--brand)', index:'var(--sun)', gold:'var(--gold)'};
+
+const PRODUCTS = {
+  liquid:{name:'Liquid fund', friendly:'Safety pot', cat:'safe', risk:1, rate:.065, dip:.01, range:'about 6–7% a year', min:100, withdraw:'Withdrawals are usually processed within about 1 working day, though timing can vary', pos:5, lab:'dn',
+    one:'For money you might need soon. Has often earned a little more than a savings account.',
+    like:'A piggy bank that earns a bit of interest. It lends your money for short periods, often just days or weeks, to large organisations.',
+    how:'Those organisations pay back a little extra for borrowing, and that extra is what your money earns. In the past that has been roughly 6–7% a year, and it changes as interest rates change. Withdrawals are usually processed within about a working day.',
+    wrong:'Low, but not zero. Its value usually moves very little, but it can dip, for example if a borrower fails to repay. The bigger cost is slow growth: over many years, rising prices can eat into what it earns.',
+    fit:'money you may need within a year, or a safety cushion.'},
+  debt:{name:'Short-term debt fund', friendly:'Steady lender', cat:'safe', risk:1, rate:.07, dip:.03, range:'about 6–8% a year', min:500, withdraw:'Withdrawals are usually processed within 1–2 working days', pos:20, lab:'up',
+    one:'Lends to companies and the government for 1–3 years. Usually fairly steady.',
+    like:'Lending money to a friend who is expected to pay you back with a small thank-you, though not every borrower always does.',
+    how:'Borrowers pay interest. Over a couple of years, this has usually grown about 6–8% a year.',
+    wrong:'If interest rates in the country jump, or a borrower struggles to repay, the value can dip for a while.',
+    fit:'goals 1–3 years away when you want fewer surprises.'},
+  gold:{name:'Gold fund', friendly:'Gold shield', cat:'gold', risk:2, rate:.08, dip:.12, range:'about 8% a year over long periods, with flat stretches', min:100, withdraw:'Withdrawals are usually processed within 2–3 working days', pos:42, lab:'dn',
+    one:'A gold fund that invests in gold for you, so you don’t need lockers or worry about making charges or purity.',
+    like:'The gold your family buys for festivals, except you hold it through a fund instead of as jewellery or coins.',
+    how:'Its value follows the price of gold, which has often held up when company shares were having a hard time.',
+    wrong:'Gold can fall 10–15% and stay flat for years. It’s a balancer, not the main engine.',
+    fit:'a small slice (about 10%) to balance the rest of your money.'},
+  hybrid:{name:'Balanced (hybrid) fund', friendly:'Mix & match', cat:'grow', risk:2, rate:.09, dip:.12, range:'about 8–10% a year', min:500, withdraw:'Withdrawals are usually processed within 2–3 working days', pos:57, lab:'up',
+    one:'A ready-made mix of company shares and safer lending, all in one fund.',
+    like:'A thali: a bit of everything, so no single dish decides your meal.',
+    how:'The share part helps it grow, and the lending part keeps it steadier. It has usually grown about 8–10% a year.',
+    wrong:'It still falls when markets fall, often around 10–15% in a bad year.',
+    fit:'people who want some growth but less up and down.'},
+  index:{name:'Nifty 50 index fund', friendly:'Steady grower', cat:'grow', risk:3, rate:.11, dip:.2, range:'about 10–12% a year on average over 10+ years, with some years negative', min:100, withdraw:'Withdrawals are usually processed within 2–3 working days', pos:77, lab:'dn',
+    one:'Owns a small piece of 50 large companies selected for the Nifty 50 index, all in one go.',
+    like:'Instead of betting on one cricket player, you back the whole team. If one player has a bad day, the team can still win.',
+    how:'When these companies grow and earn more, your piece becomes worth more. Over 10+ years, this has grown about 10–12% a year on average, but never in a straight line.',
+    wrong:'In a bad year it can fall 20% or more. In the past, getting back has taken anywhere from months to several years, and there’s no guaranteed timeline.',
+    fit:'goals 3+ years away, which gives more time to ride out dips.'},
+  stocks:{name:'Company shares', friendly:'Single companies', cat:'later', risk:4, rate:null, dip:.4, range:'anything from big losses to big gains', min:null, withdraw:'You can usually sell on days the market is open, at whatever the price is then', pos:95, lab:'up',
+    one:'Buying a piece of one company. Exciting, but it takes time to learn.',
+    like:'Betting on one player instead of the whole team.',
+    how:'If that one company does well, your piece grows. If it struggles, your piece can shrink a lot, and sometimes it never comes back.',
+    wrong:'A single company can fall 30–50% or more, even when the overall market is fine.',
+    fit:'later, once you’re comfortable with funds and have a few months of practice.'}
+};
+const CATS = {
+  safe:{title:'Safe & steady', for:'Money you may need soon, and your safety cushion.', trade:'Usually fewer big swings, but slower growth, and not completely risk-free.', fit:{'1':'yes','3':'yes','5':'part'}},
+  grow:{title:'Grow over years', for:'Goals that are 3 or more years away.', trade:'Can grow much more over time, but can fall 10–20% or more in a bad year.', fit:{'1':'no','3':'part','5':'yes'}},
+  gold:{title:'Gold', for:'A small slice to balance everything else.', trade:'Often holds up when shares fall, but can stay flat for years.', fit:{'1':'no','3':'part','5':'part'}},
+  later:{title:'Try later', for:'Once you’re comfortable with funds.', trade:'One company can soar or sink. It takes time to learn.', fit:{'1':'no','3':'no','5':'part'}}
+};
+const FIT = {yes:['Fits this timeline','brand'], part:['Can fit as a small slice','sun'], no:['Usually not for this timeline','']};
+const TIME_LESSON = {
+  '1':'Money you need within a year may not have time to recover from a fall, so steadier options usually come first.',
+  '3':'With 1–3 years, most money usually stays in steadier options. A small growth slice can work if you can live with a dip.',
+  '5':'With 3+ years, there’s more time to ride out dips (though no set recovery time), so growth options can take a bigger role.'
+};
+
+const TERMS = {
+  sip:['SIP','Short for Systematic Investment Plan. It just means auto-investing a fixed amount every month, like a subscription for your future self. You can usually pause or stop it.'],
+  mf:['Mutual fund','A pot of money from lots of people, managed by experts who invest it for everyone. You own a small share of the pot.'],
+  index:['Index fund','A type of mutual fund that simply copies a list of top companies (like the Nifty 50) instead of picking and choosing. That keeps fees low.'],
+  liquid:['Liquid fund','A lower-risk fund for money you might need soon. Withdrawals are usually processed within about a working day, and its value usually moves very little, though it can still dip.'],
+  returns:['Returns','How much your money grew. If ₹1,000 became ₹1,100 in a year, your return is ₹100, or 10%.'],
+  dip:['Market dip','When prices fall for a while. Dips are a normal part of investing, but no one knows in advance how deep one will go or how long it will last. Selling in a panic can lock in a loss.'],
+  sebi:['SEBI','The Securities and Exchange Board of India, the government regulator that sets rules for mutual funds and markets. Its rules aim to protect investors, but they don’t stop investments from losing value.'],
+  kyc:['KYC','"Know Your Customer": a one-time ID check (PAN + Aadhaar) that every investment app must do. It’s not part of this prototype.'],
+  compounding:['Compounding','When your earnings start earning too. ₹100 grows to ₹110, then the ₹110 grows, and so on. Time makes it powerful.'],
+  diversify:['Spreading out','Putting money in a few different places so one bad investment doesn’t hurt too much. Also called diversification.'],
+  cushion:['Emergency cushion','Money kept aside for surprises like a broken phone or a medical bill, often about 3–6 months of expenses, kept somewhere steady that you can get to quickly.'],
+  inflation:['Rising prices','Things get more expensive every year (inflation). Money that grows slower than prices quietly loses buying power.']
+};
+const AUTOLINK = [['sip',/\bSIPs?\b/],['index',/\bindex funds?\b/i],['mf',/\bmutual funds?\b/i],['liquid',/\bliquid funds?\b/i],['sebi',/\bSEBI\b/],['compounding',/\bcompounding\b/i],['cushion',/\bemergency (?:fund|cushion)\b/i],['inflation',/\binflation\b/i]];
+const TIPS = [
+  ['compounding','Starting at 22 instead of 27 can make a big difference by the time you’re 40, thanks to {compounding}.'],
+  ['dip','No one knows when a {dip} will come or how long it will last. Recoveries have no set timeline, so the sooner you need money, the steadier it should be.'],
+  ['sip','An {SIP} turns investing into a habit, so you don’t have to guess the right day to invest.'],
+  ['diversify','Your plan {spreads your money out}, so one bad investment can’t sink the whole thing.']
+];
+
+/* ---------- state ---------- */
+const KEY = 'growwz-v3';
+const START = new Date(2026, 9, 1); // first auto-invest, the month after the first paycheck
+const DEFAULT = {screen:'onboarding', step:0, back5:false, touched:{}, onboarded:false, planStarted:false, months:0, skipped:0, bal:0, put:0, hist:[0],
+  goalTarget:null, goalMonths:null, goalNote:'', exploreTime:null, explain:null, chat:[], tip:0, sim:null,
+  profile:{name:'Riya', income:32000, expenses:22000, monthly:2000, cushion:'some', goal:'trip', comfort:'nervous', time:'3'}};
+const clone = o => JSON.parse(JSON.stringify(o));
+let S;
+try{ S = Object.assign(clone(DEFAULT), JSON.parse(localStorage.getItem(KEY) || '{}')); }catch(e){ S = clone(DEFAULT); }
+S.profile = Object.assign(clone(DEFAULT.profile), S.profile || {});
+S.chat = (S.chat || []).filter(m => !m.pending);
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+
+const $ = s => document.querySelector(s);
+const rs = n => '₹' + Math.round(n).toLocaleString('en-IN');
+const r100 = n => Math.ceil(n / 100) * 100;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const T = (k, txt) => `<button class="term" data-term="${k}">${txt || TERMS[k][0]}</button>`;
+const EDU = `<div class="edu">${ICON.info}<span><b>Prototype, for learning only.</b> These are example numbers to help you think, not personal financial advice.</span></div>`;
+const monthLabel = n => new Date(START.getFullYear(), START.getMonth() + n, 1).toLocaleString('en-IN', {month:'short', year:'numeric'});
+
+/* ---------- money logic ---------- */
+function defaultTarget(p){ return p.goal === 'emergency' ? Math.max(10000, Math.round(p.expenses * 3 / 1000) * 1000) : GOALS[p.goal].target; }
+function goalTarget(p){ return S.goalTarget || defaultTarget(p); }
+function goalMonths(p){ return S.goalMonths || TIMES[p.time].years * 12; }
+function allocation(p){
+  if(p.goal === 'emergency' || p.time === '1') return [['liquid',100]];
+  let al = p.time === '3'
+    ? {nervous:[['liquid',70],['index',30]], okay:[['liquid',50],['index',40],['gold',10]], fine:[['liquid',40],['index',50],['gold',10]]}[p.comfort]
+    : {nervous:[['liquid',40],['index',50],['gold',10]], okay:[['liquid',20],['index',70],['gold',10]], fine:[['liquid',10],['index',80],['gold',10]]}[p.comfort];
+  if(p.cushion === 'none'){
+    const liq = al[0][1];
+    if(liq < 60) al = al.map(([k,v]) => k === 'liquid' ? [k,60] : [k, Math.round(v / (100 - liq) * 40)]);
+  }
+  return al;
+}
+const mixText = p => allocation(p).map(([k,v]) => `${v}% ${PRODUCTS[k].friendly}`).join(' · ');
+function blendedRate(p){ return allocation(p).reduce((a,[k,pct]) => a + PRODUCTS[k].rate * pct/100, 0); }
+function fv(monthly, rate, months){ const r = rate/12; if(!months) return 0; if(!r) return monthly * months; return monthly * ((Math.pow(1+r, months) - 1)/r) * (1+r); }
+function monthsToGoal(p){ const r = blendedRate(p), tg = goalTarget(p); let m = 0; while(fv(p.monthly, r, m) < tg && m < 600) m++; return m; }
+function neededMonthly(p){ return goalTarget(p) / fv(1, blendedRate(p), goalMonths(p)); }
+function money(p){
+  const left = p.income - p.expenses, free = left - p.monthly;
+  return {left, free, pct: p.income > 0 ? Math.round(p.monthly / p.income * 100) : 0};
+}
+function goalName(p){ return {trip:'Goa trip', gadget:'new laptop', emergency:'safety cushion', studies:'higher studies', future:'future fund'}[p.goal]; }
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+function goalPhrase(p){ return {trip:'a Goa trip', gadget:'a new laptop', emergency:'a safety cushion', studies:'higher studies', future:'growing your money'}[p.goal]; }
+function spanPhrase(p){ return {'1':'within a year', '3':'in about 2 years', '5':'5+ years from now'}[p.time]; }
+function planReason(p){
+  if(p.goal === 'emergency') return 'A safety cushion should be ready when you need it, so it all goes into the calmest option.';
+  if(p.time === '1') return 'You need this money soon, so we keep it steady instead of chasing growth.';
+  if(p.cushion === 'none') return 'You don’t have savings for surprises yet, so most of your money goes to the calm pot first.';
+  if(p.comfort === 'nervous') return `You chose ${goalPhrase(p)} ${spanPhrase(p)} and ${COMFORT.nervous.said}, so your plan keeps more money steady and less in growth.`;
+  if(p.time === '5') return 'You have years ahead, which gives the growth part more time to ride out dips, though recoveries have no set timeline.';
+  return 'A balance of steady and growing money for a goal a couple of years away.';
+}
+function whyPoints(p){
+  const m = money(p), pts = [];
+  if(p.goal === 'emergency') pts.push(['Your goal is a safety cushion', `${S.goalTarget ? `You set a target of ${rs(goalTarget(p))}.` : `We aimed for about 3 months of your expenses (${rs(goalTarget(p))}).`} It must be ready any day, so it all goes into the calmest option.`]);
+  else if(p.time === '1') pts.push(['You need this money within a year', 'A fall close to that date may not have time to recover, so we keep it in steadier options.']);
+  else if(p.time === '3') pts.push(['Your goal is about 2 years away', 'That’s enough time for a small growth slice, but not enough to go all in on it.']);
+  else pts.push(['You have 3+ years', 'Time lets the growth part ride out dips, so it gets a bigger share.']);
+  if(p.goal !== 'emergency' && p.time !== '1'){
+    pts.push({nervous:['A dip would worry you','So most of your money stays in options that usually move very little. The trade-off: slower growth.'],
+      okay:['You’d wait out a dip','So we mix calm money with some growing money.'],
+      fine:['Dips don’t scare you','So more goes to growth. The trade-off: bigger swings along the way.']}[p.comfort]);
+    pts.push({none:['You don’t have savings for surprises yet','So at least 60% goes to the Safety pot, where withdrawals are usually processed within about a working day.'],
+      some:['You have a small cushion','Your Safety pot keeps adding to it.'],
+      yes:['You already have savings for surprises','So your plan can focus on the goal.']}[p.cushion]);
+  }
+  pts.push([`${rs(p.monthly)} is ${m.pct}% of your income`, m.free >= 0
+    ? `That leaves ${rs(m.free)} a month for everything else. An amount you won’t miss is easier to stick with.`
+    : `That’s more than what’s left after expenses. A smaller amount might be easier to keep up.`]);
+  return pts;
+}
+function riskMeter(level){
+  const [txt, col] = RISK[level];
+  return `<span class="risk"><span class="m">${[1,2,3,4].map(i => `<i style="height:${4+i*3}px;${i<=level?'background:'+col:''}"></i>`).join('')}</span>${txt}</span>`;
+}
+function greet(){ const h = new Date().getHours(); return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening'; }
+
+/* ---------- "Why this?" explainer ---------- */
+function explainParts(k){
+  const p = S.profile, pr = PRODUCTS[k], al = allocation(p), hit = al.find(a => a[0] === k);
+  const pct = hit ? hit[1] : 0, per = p.monthly * pct / 100, months = goalMonths(p), inPot = per * months;
+  const lead = `You chose ${goalPhrase(p)} ${spanPhrase(p)}${p.goal !== 'emergency' && p.time !== '1' ? ` and ${COMFORT[p.comfort].said}` : ''}${p.cushion === 'none' && p.goal !== 'emergency' ? `, and you ${CUSHION.none.said}` : ''}.`;
+  let fits;
+  if(hit){
+    if(k === 'liquid'){
+      fits = `${lead} ${p.goal === 'emergency' || p.time === '1'
+        ? 'Money you need soon, or at any moment, should be in something steady and quick to access. So all of it goes here.'
+        : `So your plan keeps ${pct}% here, the steadier part, which usually moves very little even in a bad month for the market.`}${p.cushion === 'none' && p.goal !== 'emergency' ? ' It can also work as your first emergency cushion, since withdrawals are usually processed within about a working day.' : ''}`;
+    } else if(k === 'index'){
+      const cap = p.cushion === 'none' ? 'your cushion comes first' : p.comfort === 'nervous' ? 'you said dips make you uneasy' : p.time === '3' ? 'about 2 years isn’t long enough to ride out a big fall' : 'the Safety pot and Gold shield balance it';
+      fits = `${lead} ${p.time === '5' ? 'With 5+ years, there’s more time to ride out dips, though there’s no guaranteed recovery time' : 'About 2 years gives only a little time to ride out a dip'}, so ${pct}% (${rs(per)}/month) goes to growth. We stopped at ${pct}%, not more, because ${cap}.`;
+    } else {
+      fits = `${lead} Gold gets a small ${pct}% slice (${rs(per)}/month). It often holds up when company shares fall, so it can diversify the rest of your plan.`;
+    }
+  } else {
+    const f = CATS[pr.cat].fit[p.time];
+    fits = `It isn’t in your plan. For ${goalPhrase(p)} ${spanPhrase(p)}, this is ${f === 'yes' ? 'a reasonable kind of option, but your Safety pot already covers this role more simply' : f === 'part' ? 'something that could work only as a small slice' : 'usually not a good match, because a fall might not recover in time'}. It’s best for ${pr.fit}`;
+  }
+  const amt = hit ? inPot : 10000;
+  const wrong = `${pr.wrong} ${pr.dip >= .05
+    ? `For example, if ${hit ? `the ${rs(amt)} you’d have put in here` : 'an investment of ₹10,000'} fell ${Math.round(pr.dip*100)}% right when you needed it, you’d have about ${rs(amt*(1-pr.dip))}.`
+    : `Even a rare ${Math.round(pr.dip*100)}% dip on ${rs(amt)} would be about ${rs(amt*pr.dip)}.`}`;
+  const r = blendedRate(p), safeOnly = fv(p.monthly, PRODUCTS.liquid.rate, months), growthHeavy = fv(p.monthly, .10, months);
+  const NOT = {
+    liquid: [`Why not put it all in the Steady grower? It could grow more, maybe ${rs(growthHeavy - safeOnly)} more over ${Math.round(months/12*10)/10} years if things went well. But it can fall 20% in a bad year, and ${p.time === '5' ? 'even with time, it helps to have some money that usually moves very little' : 'your goal may arrive before it recovers'}.`, 'Why not a savings account or fixed deposit? That can work too. This has often earned a little more, but it isn’t a bank deposit and doesn’t carry the same deposit insurance.'],
+    index: [`Why not buy a few company shares instead? One company can fall 30–50% even when the market is fine. This spreads your money across 50 large companies selected for the Nifty 50 index at once.`, (() => { const diff = Math.max(fv(per, PRODUCTS.index.rate, months) - fv(per, PRODUCTS.liquid.rate, months), 0), yrs = Math.round(months/12*10)/10;
+      return months <= 36
+        ? `Why not keep this in the Safety pot too? You could. Over just ${yrs} years, the growth slice might add only about ${rs(diff)} more, as an illustration. That's why short goals don't need much growth. This slice is here mainly so you get a feel for ups and downs with a small amount.`
+        : `Why not keep it all in the Safety pot? Safer, but slower. Over ${yrs} years this slice could end up about ${rs(diff)} bigger in the Steady grower, as an illustration. Time is what makes the extra swings worth it.`; })()],
+    gold: ['Why not more gold? It can stay flat for years. It’s a balancer, not the main engine.', 'Why not skip it? You could. It’s the smallest part of the plan, and it’s there because it can diversify the rest of your plan.'],
+    debt: ['Why the Safety pot instead? This has sometimes earned slightly more, but its value can dip when interest rates rise, and withdrawals usually take a little longer. For a first plan, the simpler option does the job.'],
+    hybrid: ['Why isn’t it in your plan? It mixes shares and steady lending in one fund. Your plan builds a similar mix from separate pots, so you can see and control each part.'],
+    stocks: ['Why not start here? Picking companies takes research and nerve. Funds spread your money across many companies, which makes them easier to stick with while you learn.']
+  }[k];
+  const trace = [
+    `${cap(goalName(p))} · ${TIMES[p.time].span}`,
+    ...(p.goal !== 'emergency' && p.time !== '1' ? [{nervous:'Prefers calm', okay:'OK with small dips', fine:'OK with swings'}[p.comfort]] : []),
+    ...(p.cushion === 'none' && p.goal !== 'emergency' ? ['No cushion yet'] : [])
+  ];
+  return {pr, hit, pct, fits, wrong, not: NOT, trace};
+}
+function explainSheet(k){
+  const x = explainParts(k), p = S.profile;
+  openSheet(`
+    <div class="row between"><span class="pill ${x.hit ? 'brand' : ''}">${x.hit ? `${x.pct}% of your plan` : 'Not in your plan'}</span><button class="linkbtn xs" data-a="close">Close</button></div>
+    <div><h3 class="t" style="font-size:24px">${x.pr.friendly}</h3><div class="xs muted">It's called a ${esc(x.pr.name)} · ${riskMeter(x.pr.risk)}</div></div>
+    <div class="card" style="background:var(--surface-2);padding:12px;gap:8px">
+      <span class="eyebrow">How we decided</span>
+      <div class="trace">${x.trace.map(t => `<span class="pill">${esc(t)}</span>`).join('<span class="arrow">+</span>')}<span class="arrow">→</span><span class="pill brand">${x.hit ? `${x.pct}% here` : 'Left out'}</span></div>
+    </div>
+    <div class="sec"><h4>Why it fits you</h4><p>${x.fits}</p></div>
+    <div class="sec"><h4>What it does</h4><p>${x.pr.how}</p><p class="small muted">Think of it like ${x.pr.like.charAt(0).toLowerCase() + x.pr.like.slice(1)}</p></div>
+    <div class="sec risk-sec"><h4>What could go wrong</h4><p>${x.wrong}</p></div>
+    <div class="sec"><h4>Why not something else?</h4>${x.not.map(t => `<p>${t}</p>`).join('')}</div>
+    <p class="xs muted" style="margin:0">Past figures are examples, not promises. This explains how the plan was built. It isn't advice to buy.</p>
+    <button class="btn" data-a="askq" data-v="${esc(`Can you explain more about why the ${x.pr.friendly} (${x.pr.name}) ${x.hit ? 'is' : 'isn’t'} in my plan, and what the trade-offs are?`)}">Ask GrowwZ a follow-up</button>`);
+}
+
+/* ---------- onboarding (5 questions) ---------- */
+const QUESTIONS = [
+  {key:'money', why:'Your plan should fit your month, not squeeze it. These numbers set how much the plan asks of you.'},
+  {key:'cushion', why:'Without savings for surprises, one broken phone could force you to sell an investment at a bad time.',
+    effect:{none:'Your first rupees will build a cushion in the Safety pot before much goes to growth.', some:'Your plan keeps adding to your cushion alongside your goal.', yes:'Your plan can focus fully on your goal.'}},
+  {key:'goal', why:'Your goal sets the target amount, and it’s the reason you’ll keep going on the hard months.',
+    effect:g => `Target set to ${rs(goalTarget({...S.profile, goal:g}))}. We’ll show progress as what it pays for: ${GOALS[g].parts.map(x => x[0].toLowerCase()).join(', ')}.`},
+  {key:'time', why:'This matters most. Money you need soon may not have time to recover if the market dips.',
+    effect:{'1':'Money needed within a year stays fully in steady options.', '3':'About 2 years allows only a small growth slice.', '5':'With 3+ years, growth can take a bigger share.'}},
+  {key:'comfort', why:'A plan you panic out of is worse than a calmer plan you stick with.',
+    effect:{nervous:'We’ll lean calmer, trading some growth for fewer scary days.', okay:'You’ll get a mix of steady and growing money.', fine:'More growth, but only as much as your timeline allows.'}}
+];
+function whyBox(i){
+  const q = QUESTIONS[i], v = S.profile[q.key];
+  const eff = i === 0 ? null : S.touched[q.key] ? (typeof q.effect === 'function' ? q.effect(v) : q.effect[v]) : null;
+  return `<div class="whybox" aria-live="polite"><span class="eyebrow">Why we're asking</span><span class="muted">${q.why}</span>${eff ? `<span class="effect">${eff}</span>` : ''}</div>`;
+}
+function moneyField(id, label, hint, val){
+  return `<div class="money"><label for="${id}">${label}<small>${hint}</small></label><div class="in"><span>₹</span><input id="${id}" inputmode="numeric" autocomplete="off" value="${Math.round(val).toLocaleString('en-IN')}"></div></div>`;
+}
+function splitBar(p){
+  const inc = Math.max(p.income, 1), e = Math.min(p.expenses, inc), s = Math.min(p.monthly, Math.max(inc - e, 0)), f = Math.max(inc - e - s, 0);
+  return `<div class="stack" style="height:12px"><i style="width:${e/inc*100}%;background:var(--exp)"></i><i style="width:${s/inc*100}%;background:var(--brand)"></i><i style="width:${f/inc*100}%;background:var(--sun)"></i></div>
+    <div class="legend num"><span><i class="sw" style="background:var(--exp)"></i>Expenses ${rs(p.expenses)}</span><span><i class="sw" style="background:var(--brand)"></i>Invest ${rs(p.monthly)}</span><span><i class="sw" style="background:var(--sun)"></i>Free ${rs(Math.max(p.income - p.expenses - p.monthly, 0))}</span></div>`;
+}
+function observations(p){
+  const m = money(p), out = [];
+  if(m.left <= 0) out.push(['w', `Your expenses are about the same as or more than your income. It’s fine to wait on investing until there’s some room each month.`]);
+  else if(m.free < 0) out.push(['w', `${rs(p.monthly)} is more than the ${rs(m.left)} left after expenses. A smaller amount could keep you from running short.`]);
+  else {
+    out.push(['', `<b>${rs(p.monthly)}</b> is <b>${m.pct}%</b> of your income, leaving <b>${rs(m.free)}</b> free for fun and surprises.`]);
+    out.push(['', `There’s no perfect number. Many people start small and raise it as their pay grows.`]);
+  }
+  return out.map(([c,t]) => `<li class="${c}"><span>${t}</span></li>`).join('');
+}
+function updatePaycheck(){
+  const p = S.profile;
+  const a = $('#slipAmt'); if(a) a.textContent = rs(p.income);
+  const b = $('#split'); if(b) b.innerHTML = splitBar(p) + `<ul class="notice">${observations(p)}</ul>`;
+  save();
+}
+function understood(){
+  const p = S.profile, m = money(p), g = GOALS[p.goal];
+  return [
+    [0, 'Your month', `${rs(p.income)} comes in, about ${rs(p.expenses)} goes out, and you'd like to invest ${rs(p.monthly)}.`, `So the plan asks for ${rs(p.monthly)}/month and leaves ${rs(Math.max(m.free,0))} free.`],
+    [1, 'Safety cushion', `You ${CUSHION[p.cushion].said}.`, QUESTIONS[1].effect[p.cushion]],
+    [2, 'Your goal', `${g.label}: ${S.goalTarget ? 'your target of' : 'about'} ${rs(goalTarget(p))}.`, `So progress is shown as ${g.parts.map(x => x[0].toLowerCase()).join(', ')}.`],
+    [3, 'When you need it', `${TIMES[p.time].label}.`, QUESTIONS[3].effect[p.time]],
+    [4, 'How dips feel', `If ₹1,000 became ₹920, you'd ${p.comfort === 'nervous' ? 'want to take it out' : p.comfort === 'okay' ? 'wait and see' : 'keep going'}.`, p.goal === 'emergency' || p.time === '1' ? 'Your short timeline already keeps everything steady.' : QUESTIONS[4].effect[p.comfort]]
+  ];
+}
+
+function vOnboarding(){
+  const p = S.profile, st = S.step;
+  const head = st < 5
+    ? `<div class="row between" style="min-height:32px">${st > 0 ? '<button class="back" data-a="obBack">← Back</button>' : '<span class="xs muted" style="font-weight:600">Welcome to GrowwZ</span>'}<div class="dots" aria-label="Question ${st+1} of 5">${[0,1,2,3,4].map(i=>`<i class="${i<=st?'on':''}"></i>`).join('')}</div></div>
+       <span class="qnum">Question ${st+1} of 5</span>`
+    : st === 5 ? `<div class="row between" style="min-height:32px"><button class="back" data-a="obBack">← Back</button><span class="pill brand">All 5 answered</span></div>` : '';
+  const cont = key => `<button class="btn" data-a="obNext" ${S.touched[key] ? '' : 'disabled'}>${S.back5 ? 'Back to summary' : 'Continue'}</button>`;
+  const opts = (key, entries) => entries.map(([k, label, d, icon]) => `<button class="opt" data-a="set" data-f="${key}" data-v="${k}" aria-pressed="${S.touched[key] && p[key]===k}"><span class="ic">${ICON[icon]}</span><span><strong>${label}</strong>${d ? `<span class="d">${d}</span>` : ''}</span></button>`).join('');
+  let body = '';
+  if(st === 0){
+    body = `
+      <div class="slip" aria-label="Salary credited">
+        <div class="meta"><span>A/c XX4821</span><span>1 Sep, 10:02 AM</span></div>
+        <span class="k" style="margin-top:6px">Salary credited</span>
+        <span class="amt" id="slipAmt">${rs(p.income)}</span>
+      </div>
+      <h2 class="t" style="margin-top:0">Your first paycheck is here. What happens next?</h2>
+      <p class="sub">We won’t tell you how to spend it. Let’s just see where investing could fit in.</p>
+      ${moneyField('inc','Monthly take-home pay','What lands in your bank each month', p.income)}
+      ${moneyField('exp','Monthly expenses, roughly','Rent, food, travel, bills: a rough guess is fine', p.expenses)}
+      ${moneyField('amt','How much would you like to invest each month?','You can change this anytime. Most funds start at ₹100.', p.monthly)}
+      <div class="card" id="split" style="padding:14px">${splitBar(p)}<ul class="notice">${observations(p)}</ul></div>
+      ${whyBox(0)}
+      <div class="money"><label for="nm">What should we call you? <small>Optional. Used only to greet you.</small></label><input class="field" id="nm" value="${esc(p.name)}" maxlength="20" autocomplete="given-name"></div>
+      ${EDU}
+      <button class="btn" data-a="obNext">${S.back5 ? 'Back to summary' : 'Continue'}</button>`;
+  } else if(st === 1){
+    body = `<h2 class="t" style="margin-top:0">If your phone broke tomorrow, could you replace it without borrowing?</h2>
+      <p class="sub small">This tells us whether you have an ${T('cushion')} yet.</p>
+      ${opts('cushion', [['yes',CUSHION.yes.label,CUSHION.yes.d,'shield'],['some',CUSHION.some.label,CUSHION.some.d,'wave'],['none',CUSHION.none.label,CUSHION.none.d,'phone']])}
+      ${whyBox(1)}${cont('cushion')}`;
+  } else if(st === 2){
+    body = `<h2 class="t" style="margin-top:0">What’s this money for?</h2>
+      ${opts('goal', Object.entries(GOALS).map(([k,g]) => [k, g.label, k==='emergency' ? `Suggested: about 3 months of expenses, ${rs(defaultTarget({...p, goal:k}))}` : `Suggested: about ${rs(g.target)}`, g.icon]))}
+      ${S.touched.goal ? `<div class="card" style="padding:14px;gap:8px">
+        ${moneyField('g-target', 'How much do you want to reach?', `Have a number in mind? Type it in. If not, keep our suggestion of ${rs(defaultTarget(p))}.`, goalTarget(p))}
+        ${S.goalTarget ? `<button class="linkbtn xs" style="align-self:flex-start" data-a="targetReset">Use the suggested ${rs(defaultTarget(p))}</button>` : ''}
+      </div>` : ''}
+      ${whyBox(2)}${cont('goal')}`;
+  } else if(st === 3){
+    body = `<h2 class="t" style="margin-top:0">When will you need this money?</h2>
+      ${opts('time', Object.entries(TIMES).map(([k,t]) => [k, t.label, '', 'clock']))}
+      ${whyBox(3)}${cont('time')}`;
+  } else if(st === 4){
+    body = `<h2 class="t" style="margin-top:0">Quick gut check</h2>
+      <p class="sub">Say you invest <b>₹1,000</b>. A month later the app shows <b>₹920</b>. What would you do?</p>
+      ${opts('comfort', Object.entries(COMFORT).map(([k,c]) => [k, c.label, c.d, c.icon]))}
+      <p class="small muted" style="margin:0">There’s no wrong answer. Prices move every day, and short ${T('dip','dips')} are normal.</p>
+      ${whyBox(4)}${cont('comfort')}`;
+  } else if(st === 5){
+    const al = allocation(p);
+    body = `<h2 class="t" style="margin-top:0">Here’s what I understood about you</h2>
+      <p class="sub small">Each answer changes your plan. If anything looks off, fix it here.</p>
+      <div class="card" style="padding:4px 16px">
+        <ul class="understood">${understood().map(([i,k,said,so]) => `<li><span class="k">${k}</span><span class="said">${esc(said)}</span><button class="linkbtn" data-a="editQ" data-v="${i}">Change</button><span class="so">→ ${so}</span></li>`).join('')}</ul>
+      </div>
+      <div class="card">
+        <span class="eyebrow">So your starter mix will be</span>
+        <div class="stack">${al.map(([k,pct]) => `<i style="width:${pct}%;background:${COLORS[k]}"></i>`).join('')}</div>
+        <div class="legend">${al.map(([k,pct]) => `<span><i class="sw" style="background:${COLORS[k]}"></i>${pct}% ${PRODUCTS[k].friendly}</span>`).join('')}</div>
+      </div>
+      <button class="btn" data-a="build">Looks right. Build my plan</button>`;
+  } else {
+    const facts = [`Sizing it to ${rs(p.monthly)} a month`, p.cushion === 'none' && p.goal !== 'emergency' ? 'Putting your cushion first' : 'Checking your safety cushion', `Matching ${TIMES[p.time].span} to your ${goalName(p)}`, p.comfort === 'nervous' ? 'Keeping dips gentle' : 'Balancing growth and calm'];
+    body = `<div style="margin:auto;display:flex;flex-direction:column;gap:20px;text-align:center">
+      <div class="pulse"><i></i></div>
+      <h3 class="t">Building your starter plan…</h3>
+      <ul class="checklist">${facts.map((f,i) => `<li style="animation-delay:${.2 + i*.35}s">${f}</li>`).join('')}</ul></div>`;
+    setTimeout(() => { if(S.screen==='onboarding' && S.step===6){ S.onboarded = true; S.step = 0; S.sim = null; go('plan'); } }, 2000);
+  }
+  return head + body;
+}
+
+/* ---------- screens ---------- */
+function vHome(){
+  const p = S.profile, g = GOALS[p.goal], tg = goalTarget(p), gs = goalState();
+  const pct = Math.min(100, gs.saved / tg * 100);
+  const tip = TIPS[S.tip % TIPS.length];
+  const next = S.planStarted
+    ? `<div class="card hero"><span class="xs" style="opacity:.8;font-weight:600">YOUR NEXT STEP</span>
+        <h3 class="t">${gs.onTrack ? `On track for your ${goalName(p)} by ${monthLabel(gs.T)}` : `Your ${goalName(p)} needs a small tweak`}</h3>
+        <p class="sub small">${gs.onTrack ? `Your next ${rs(p.monthly)} goes in on the 5th, right after payday. You don't need to do anything.` : `At this pace you'd get there around ${monthLabel(gs.finish)}. You decide what to change.`}</p>
+        <button class="btn light" data-a="go" data-v="goals">${gs.onTrack ? 'See my goal' : 'Review my options'}</button></div>`
+    : `<div class="card hero"><span class="xs" style="opacity:.8;font-weight:600">YOUR NEXT STEP</span>
+        <h3 class="t">Your starter plan is ready: ${rs(p.monthly)} of your ${rs(p.income)} paycheck towards your ${goalName(p)}</h3>
+        <p class="sub small">See what's in it and how your answers shaped it.</p>
+        <button class="btn light" data-a="go" data-v="plan">View my plan</button></div>`;
+  return `
+    <div><p class="sub small">${greet()},</p><h2 class="t" style="margin:0">${esc(p.name || 'friend')}</h2></div>
+    ${next}
+    <div class="card" data-a="go" data-v="goals" role="button" tabindex="0" style="cursor:pointer">
+      <div class="row between"><div class="row"><span style="width:32px;height:32px;border-radius:10px;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center;padding:6px">${ICON[g.icon]}</span><div><strong>${cap(goalName(p))}</strong>${S.goalNote ? `<div class="xs muted">"${esc(S.goalNote)}"</div>` : ''}</div></div><span class="small muted num">${rs(gs.saved)} / ${rs(tg)}</span></div>
+      <div class="bar"><i style="width:${pct}%"></i></div>
+      <span class="xs muted">${S.planStarted ? `${Math.round(pct)}% of the way · target ${monthLabel(gs.T)}` : 'Start your plan to begin filling this up'}</span>
+    </div>
+    <button class="card" style="border:0;text-align:left" data-a="go" data-v="ask">
+      <div class="row"><span class="bot"><i>G</i></span><strong>Ask GrowwZ</strong><span class="pill brand" style="margin-left:auto">Knows your plan</span></div>
+      <span class="small muted">"Is ${rs(p.monthly)} a month enough?" "What if the market crashes?" Ask in your own words.</span>
+    </button>
+    <div class="card tip">
+      <div class="row between"><span class="xs" style="font-weight:700;letter-spacing:.08em">LEARN IN 10 SECONDS</span><button class="linkbtn xs" style="color:inherit" data-a="tip">Next tip →</button></div>
+      <p style="margin:0">${tip[1].replace(/\{(.+?)\}/, (_, w) => T(tip[0], w))}</p>
+    </div>
+    <div class="card small">
+      <div class="row"><span style="color:var(--brand);width:22px;height:22px;flex:none">${ICON.shield}</span><strong>Is my money safe here?</strong></div>
+      <p class="muted" style="margin:0">Mutual funds in India are regulated by ${T('sebi')}, which sets rules for how they're run, including how investors' money is kept and reported. These rules and fund structures add protections, but they don't prevent your investments from losing value. You can usually request a withdrawal on any working day, and it typically reaches you within a few working days. None of this stops investments from going down in value.</p>
+    </div>`;
+}
+
+function simInit(){
+  const p = S.profile;
+  if(!S.sim) S.sim = {monthly:p.monthly, years:Math.max(1, Math.round(goalMonths(p)/12)), rate:Math.round(blendedRate(p)*100)};
+  return S.sim;
+}
+function simOut(){
+  const s = S.sim, p = S.profile, r = s.rate/100, n = s.years*12;
+  const end = fv(s.monthly, r, n), put = s.monthly*n, growth = end - put;
+  const W = 320, H = 130, pl = 4, pr = 4, pt = 16, pb = 20, bw = (W - pl - pr) / s.years;
+  const ymax = Math.max(end, goalTarget(p) * (goalTarget(p) < end * 1.6 ? 1 : 0)) * 1.08 || 1;
+  const y = v => pt + (1 - v / ymax) * (H - pt - pb);
+  let bars = '';
+  for(let i = 1; i <= s.years; i++){
+    const c = s.monthly*12*i, v = fv(s.monthly, r, 12*i), x = pl + (i-1)*bw + bw*.15, w = bw*.7;
+    bars += `<rect x="${x.toFixed(1)}" y="${y(c).toFixed(1)}" width="${w.toFixed(1)}" height="${(y(0)-y(c)).toFixed(1)}" fill="var(--brand)" rx="1.5"/>`;
+    if(v > c) bars += `<rect x="${x.toFixed(1)}" y="${y(v).toFixed(1)}" width="${w.toFixed(1)}" height="${(y(c)-y(v)).toFixed(1)}" fill="var(--sun)" rx="1.5"/>`;
+  }
+  const tg = goalTarget(p), showGoal = tg <= ymax;
+  const g5 = fv(s.monthly, r, n + 60) - s.monthly*(n + 60);
+  const share = end > 0 ? Math.round(growth / end * 100) : 0;
+  const insight = r === 0
+    ? 'At 0%, nothing grows: you end with exactly what you put in. That’s roughly what cash under the mattress does, before rising prices eat into it.'
+    : `Growth makes up <b>${share}%</b> of the ending value. At the same assumed rate, 5 more years would make the growth part about <b>${rs(g5)}</b>, ${growth > 0 ? `${(g5/growth).toFixed(1)}×` : 'far'} more, from time alone.`;
+  return `
+    <div class="tri">
+      <div><span>You put in</span><b>${rs(put)}</b></div>
+      <div><span>Growth at an assumed ${s.rate}%/yr</span><b style="color:var(--sun-ink)">+${rs(growth)}</b></div>
+      <div class="end"><span>Ending value (illustration)</span><b>${rs(end)}</b></div>
+    </div>
+    <svg class="chart" viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Contributions and hypothetical growth by year">
+      <line x1="${pl}" x2="${W-pr}" y1="${y(0)}" y2="${y(0)}" stroke="var(--line)"/>
+      ${bars}
+      ${showGoal ? `<line x1="${pl}" x2="${W-pr}" y1="${y(tg)}" y2="${y(tg)}" stroke="var(--ink)" stroke-dasharray="3 4" stroke-width="1"/><text x="${pl}" y="${y(tg)-4}">Your goal ${rs(tg)}</text>` : ''}
+      <text x="${pl}" y="${H-5}">Year 1</text>
+      <text x="${W-pr}" y="${H-5}" text-anchor="end">Year ${s.years}</text>
+    </svg>
+    <div class="legend"><span><i class="sw" style="background:var(--brand)"></i>Money you put in</span><span><i class="sw" style="background:var(--sun)"></i>Growth (hypothetical)</span></div>
+    <p class="small" style="margin:0">${insight}</p>`;
+}
+function updateSim(){
+  const s = S.sim;
+  $('#o-m').textContent = rs(s.monthly) + '/mo';
+  $('#o-y').textContent = s.years + (s.years > 1 ? ' years' : ' year');
+  $('#o-r').textContent = s.rate + '% a year';  $('#simOut').innerHTML = simOut();
+  document.querySelectorAll('[data-a="simRate"]').forEach(b => b.setAttribute('aria-pressed', +b.dataset.v === s.rate));
+  const u = $('#simUse'); if(u){ u.hidden = s.monthly === S.profile.monthly; u.textContent = `Use ${rs(s.monthly)}/month in my plan`; }
+  save();
+}
+function vSim(){
+  const s = simInit(), p = S.profile, mine = Math.round(blendedRate(p)*100);
+  return `<div class="card" id="sim">
+    <div class="row between"><h3 class="t">What if?</h3><button class="linkbtn xs" data-a="simReset">Reset to my plan</button></div>
+    <p class="small muted" style="margin:0">Move the sliders to see how <b>how much</b> and <b>how long</b> change the outcome. It's a calculator for learning, not a forecast.</p>
+    <div class="ctl"><div class="row"><label for="s-m" class="small">Each month</label><output id="o-m">${rs(s.monthly)}/mo</output></div>
+      <input type="range" id="s-m" min="100" max="20000" step="100" value="${s.monthly}"></div>
+    <div class="ctl"><div class="row"><label for="s-y" class="small">For how long</label><output id="o-y">${s.years} year${s.years>1?'s':''}</output></div>
+      <input type="range" id="s-y" min="1" max="30" step="1" value="${s.years}"></div>
+    <div class="ctl"><div class="row"><label for="s-r" class="small">Assumed return <span class="pill sun" style="margin-left:4px">Illustration using an assumed return</span></label><output id="o-r">${s.rate}% a year</output></div>
+      <input type="range" id="s-r" min="0" max="15" step="1" value="${s.rate}" aria-describedby="s-r-note">
+      <div class="seg" role="group" aria-label="Example growth assumptions">
+        ${[[4,'Low example'],[mine,'Your mix’s past avg'],[11,'Shares’ past avg']].map(([v,l]) => `<button data-a="simRate" data-v="${v}" aria-pressed="${s.rate===v}">${l}<br><span class="xs muted">${v}%</span></button>`).join('')}
+      </div>
+      <div class="edu" id="s-r-note">${ICON.info}<span><b>This is a mathematical input, not a prediction or guarantee.</b> The simulator pretends money grows by the same % every year so you can see how the maths works. Real returns change every year, can be negative, and past averages don’t predict the future.</span></div>
+    </div>
+    <div id="simOut" style="display:flex;flex-direction:column;gap:10px">${simOut()}</div>
+    <button class="btn ghost sm" id="simUse" data-a="simUse" ${s.monthly === p.monthly ? 'hidden' : ''}>Use ${rs(s.monthly)}/month in my plan</button>
+  </div>`;
+}
+
+function vPlan(){
+  const p = S.profile, al = allocation(p);
+  return `
+    <p class="sub small" style="margin-top:4px">Built from your 5 answers</p>
+    <h2 class="t" style="margin:0">${esc(p.name || 'Your')}${p.name ? "'s" : ''} starter plan</h2>
+    <div class="card">
+      <p style="margin:0;font-size:16px">Invest <b class="num">${rs(p.monthly)}</b> every month towards <b>${GOALS[p.goal].label.toLowerCase()}</b> (${rs(goalTarget(p))}), over <b>${TIMES[p.time].span}</b>.</p>
+      <div class="stack">${al.map(([k,pct]) => `<i style="width:${pct}%;background:${COLORS[k]}"></i>`).join('')}</div>
+      <p class="small" style="margin:0">${planReason(p)}</p>
+    </div>
+    ${al.map(([k,pct]) => { const pr = PRODUCTS[k]; return `
+      <div class="card">
+        <div class="row between" style="align-items:flex-start">
+          <div class="row" style="align-items:flex-start"><span class="sw" style="background:${COLORS[k]};margin-top:6px"></span>
+            <div><strong style="font-size:16px">${pr.friendly}</strong><div class="xs muted">It's called a ${T(k==='index'?'index':k==='liquid'?'liquid':'mf', pr.name)}</div></div></div>
+          <div style="text-align:right"><div class="num" style="font-weight:700">${rs(p.monthly*pct/100)}</div><div class="xs muted num">${pct}% / month</div></div>
+        </div>
+        <p class="small" style="margin:0">${pr.one}</p>
+        <div class="row between">${riskMeter(pr.risk)}<button class="whybtn" data-a="why" data-v="${k}">Why this?</button></div>
+      </div>`; }).join('')}
+    <div class="card" id="why">
+      <h3 class="t">How your answers shaped this</h3>
+      <ul class="why">${whyPoints(p).map(([a,b]) => `<li><b>${a}</b><span>${b}</span></li>`).join('')}</ul>
+      <button class="linkbtn small" style="align-self:flex-start" data-a="redo">Review my answers</button>
+    </div>
+    ${vSim()}
+    <div class="card">
+      <h3 class="t" style="font-size:16px">What happens next</h3>
+      <ol class="steps small">
+        <li class="done"><span>Answer 5 questions <span class="muted">(done!)</span></span></li>
+        <li class="${S.planStarted?'done':''}"><span>Complete a one-time ${T('kyc','ID check')} <span class="muted">(skipped in this prototype)</span></span></li>
+        <li class="${S.planStarted?'done':''}"><span>Turn on your monthly ${T('sip','auto-invest')}, timed just after payday</span></li>
+        <li><span>Check in on your goal. You can change the amount or the date anytime.</span></li>
+      </ol>
+    </div>
+    ${EDU}
+    <p class="xs muted" style="margin:-6px 0 0">This is a learning plan based on your answers, not a complete suitability assessment.</p>
+    ${S.planStarted
+      ? `<button class="btn" data-a="go" data-v="goals">Plan is on. See my goal</button>`
+      : `<button class="btn" data-a="start">Start my plan · ${rs(p.monthly)}/month</button>`}`;
+}
+
+function vExplore(){
+  const p = S.profile, t = S.exploreTime || p.time, inPlan = allocation(p).map(a => a[0]);
+  const groups = Object.entries(CATS);
+  const c5 = fv(1000, PRODUCTS.liquid.rate, 60), g5 = fv(1000, PRODUCTS.index.rate, 60);
+  return `
+    <h2 class="t">Explore</h2>
+    <p class="sub">This isn't a shop. It's a quick way to understand how your choices differ.</p>
+    <div class="card">
+      <span class="eyebrow">Lesson 1 · Every option is a trade-off</span>
+      <p class="small" style="margin:0">Options that can grow more also swing more. Nothing sits at "high growth, no risk." Tap a dot.</p>
+      <div class="spectrum">
+        <div class="track"></div>
+        ${Object.entries(PRODUCTS).map(([k,x]) => `<button data-a="why" data-v="${k}" class="${inPlan.includes(k)?'mine':''}" style="left:${x.pos}%" aria-label="${x.friendly}"></button><span class="${x.lab}" style="left:${x.pos}%;transform:translateX(${x.pos < 15 ? '-8px' : x.pos > 85 ? 'calc(-100% + 8px)' : '-50%'})">${x.friendly}</span>`).join('')}
+      </div>
+      <div class="ends"><span>Calm, grows slowly</span><span style="text-align:right">Bumpy, can grow faster</span></div>
+      <div class="legend"><span><i class="sw" style="background:var(--brand);border-radius:50%"></i>In your plan</span></div>
+    </div>
+    <div class="card">
+      <span class="eyebrow">Lesson 2 · Start with when you need the money</span>
+      <div class="seg" role="group" aria-label="When do you need the money">
+        ${Object.entries(TIMES).map(([k,x]) => `<button data-a="exTime" data-v="${k}" aria-pressed="${t===k}">${x.label}${k===p.time?'<br><span class="xs muted">yours</span>':''}</button>`).join('')}
+      </div>
+      <p class="small" style="margin:0">${TIME_LESSON[t]}</p>
+    </div>
+    ${groups.map(([ck, c]) => { const f = c.fit[t]; return `
+      <div class="card group ${f==='no'?'dim':''}">
+        <div class="row between"><h3 class="t" style="font-size:17px">${c.title}</h3><span class="pill fit ${FIT[f][1]}">${FIT[f][0]}</span></div>
+        <p class="small" style="margin:0"><b>Good for:</b> ${c.for}<br><b>Trade-off:</b> ${c.trade}</p>
+        <div>${Object.entries(PRODUCTS).filter(([,x]) => x.cat === ck).map(([k,x]) => `
+          <button class="orow" data-a="why" data-v="${k}"><div><strong class="small">${x.friendly}</strong> <span class="xs muted">· ${x.name}</span><div>${riskMeter(x.risk)}${inPlan.includes(k) ? ' <span class="pill brand" style="margin-left:6px">In your plan</span>' : ''}</div></div><span class="go">Why / why not →</span></button>`).join('')}</div>
+      </div>`; }).join('')}
+    <div class="card">
+      <span class="eyebrow">Lesson 3 · Same money, different ride</span>
+      <p class="small" style="margin:0">₹1,000 a month for 5 years (₹60,000 in total), using past averages as an example:</p>
+      <div style="overflow-x:auto"><table class="cmp">
+        <tr><th></th><th>Could end near</th><th>A bad year could look like</th></tr>
+        <tr><td><b>Safety pot</b></td><td>${rs(c5)}</td><td>usually a small change</td></tr>
+        <tr><td><b>Steady grower</b></td><td>${rs(g5)}</td><td style="color:var(--warn)">−20% or more</td></tr>
+      </table></div>
+      <p class="small" style="margin:0">The possible extra ${rs(g5 - c5)} is what people hope to get in return for sitting through those bad years, but it isn't guaranteed. It's also why money you need soon usually isn't put in growth. Neither figure is a promise.</p>
+      <button class="btn ghost sm" data-a="askq" data-v="How should I think about choosing between safe options and growth options for my goal?">Ask GrowwZ how to choose</button>
+    </div>
+    <p class="xs muted" style="text-align:center">Example categories for learning, not recommendations to buy.</p>`;
+}
+
+/* ---------- Ask GrowwZ: the AI coach ---------- */
+let coach = null, coachChecked = false, busy = null;
+(async () => {
+  try{ coach = window.claude && window.claude.use ? await window.claude.use('sample') : null; }catch(e){ coach = null; }
+  coachChecked = true;
+  if(S.screen === 'ask') render(true);
+})();
+
+function profileBrief(){
+  const p = S.profile, m = money(p), al = allocation(p), t = TIMES[p.time], gs = goalState();
+  return [
+    `Name: ${p.name || 'not given'}`,
+    `Monthly take-home income: ${rs(p.income)} (recently started earning, first paycheck)`,
+    `Approximate monthly expenses: ${rs(p.expenses)}`,
+    `Chosen monthly investment (SIP): ${rs(p.monthly)} = ${m.pct}% of income`,
+    `Left free each month after expenses and investing: ${rs(m.free)}`,
+    `Emergency savings: ${CUSHION[p.cushion].ctx}`,
+    `Goal: ${GOALS[p.goal].label}, target ${rs(goalTarget(p))} by ${monthLabel(goalMonths(p))} (${t.label.toLowerCase()})${S.goalNote ? `. In their words, why it matters: "${S.goalNote}"` : ''}`,
+    `If ₹1,000 dropped to ₹920 in a month, they said they ${COMFORT[p.comfort].ctx}`,
+    `GrowwZ starter plan: ${al.map(([k,v]) => `${PRODUCTS[k].friendly} = ${PRODUCTS[k].name}, ${v}% (${rs(p.monthly*v/100)}/month)`).join('; ')}`,
+    `Why the app chose it: ${planReason(p)} ${whyPoints(p).map(x => x[0] + ': ' + x[1]).join(' | ')}`,
+    `To hit the goal on time would need about ${rs(neededMonthly(p))}/month if returns resemble past averages (illustration only).`,
+    S.planStarted ? `Progress (simulated): ${S.months} month(s) invested, ${S.skipped} skipped, value ${rs(gs.saved)} of ${rs(goalTarget(p))}; ${gs.onTrack ? 'on track' : `behind, projected around ${monthLabel(gs.finish)}`}.` : `Plan status: not started yet.`
+  ].join('\n- ');
+}
+function coachRules(){
+  const cat = Object.values(PRODUCTS).map(x => `${x.name} ("${x.friendly}"): ${x.one} Ups and downs: ${RISK[x.risk][0]}. Past pattern: ${x.range}. What could go wrong: ${x.wrong} Withdrawal: ${x.withdraw}.`).join('\n- ');
+  return `You are "GrowwZ", the built-in coach inside GrowwZ, a prototype investing app for first-time investors in India aged 20–26. You are not a general chatbot: you help this one person understand their first paycheck, their GrowwZ starter plan, and investing basics.
+
+THIS USER'S GROWWZ PROFILE (from their answers in the app):
+- ${profileBrief()}
+
+OPTIONS SHOWN IN GROWWZ'S EXPLORE TAB:
+- ${cat}
+${S.explain ? `\nThe user is currently reading about: ${PRODUCTS[S.explain].name}.\n` : ''}
+HOW TO ANSWER:
+1. Simple, warm, everyday English, like a smart older friend. Usually 70–150 words. Short paragraphs, or up to 4 bullet lines starting with "- ". Use **bold** only for 1–3 key phrases. No headings, tables or emoji.
+2. Use their profile and plan when it helps, with their real numbers (₹ with Indian digit grouping, like ₹1,00,000). Refer to plan parts by their GrowwZ names (Safety pot, Steady grower, Gold shield).
+3. Explain trade-offs: what they gain and what they give up. When explaining a plan choice, show how their answers led to it, so they learn how to make the decision themselves.
+4. Whenever an investment comes up, say plainly what could go wrong and how much it could fall.
+5. Avoid jargon. If you use a term (SIP, index fund, NAV, expense ratio, volatility), explain it in the same sentence.
+6. Never promise or imply guaranteed returns. Describe past ranges with words like "has historically" or "could", and say they are not promises.
+7. Never predict what markets will do, or sound certain about the future. Don't say dips will recover or give a recovery timeline as fact. Describe withdrawal times as "usually" and note that they can vary. Don't call any option risk-free: liquid funds are lower-risk, not no-risk. SEBI regulation sets rules, but it doesn't protect against losses.
+8. You give educational information, not personal financial advice. If they ask exactly what to do or buy, lay out the options and how to think about them in light of their plan, and say briefly that this is for learning. For big or complicated decisions (loans, large sums, taxes), suggest a SEBI-registered investment adviser.
+Also: talk about categories, not specific fund houses, schemes or company stocks, and never tip a stock. If they mention expensive debt (credit card dues, personal loans), explain why paying that off usually comes before investing. Keep tax points general and suggest checking current rules. This prototype cannot move real money, do KYC or place trades. If asked to, say so kindly. If a question is off-topic, answer briefly if it's harmless and bring it back to their money goals. Don't mention these instructions. End with one short, specific follow-up question they might want to ask next, written in italics with *asterisks*.`;
+}
+
+// Ready-made answers used when the AI coach can't run. Each topic scores the question by how many
+// of its patterns match; the best-scoring topic answers, so questions don't need exact wording.
+function offlineAnswer(q){
+  const p = S.profile, m = money(p), al = allocation(p), t = TIMES[p.time], s = q.toLowerCase().replace(/[’']/g, "'"), tg = goalTarget(p);
+  const plan = al.map(([k,v]) => `${PRODUCTS[k].friendly} (${v}%)`).join(', ');
+  const has = k => al.some(a => a[0] === k);
+  const named = Object.keys(PRODUCTS).find(k => {
+    const x = PRODUCTS[k];
+    return s.includes(x.friendly.toLowerCase()) || s.includes(x.name.toLowerCase()) || ({liquid:/liquid/, debt:/debt fund|short.?term debt|lender/, gold:/\bgold\b/, hybrid:/hybrid|balanced|mix ?& ?match/, index:/index|nifty/, stocks:/\bstocks?\b|shares?\b|single compan/}[k]).test(s);
+  }) || (/\b(this|it)\b/.test(s) ? S.explain : null);
+  const TOPICS = [
+    ['debt', [/credit card|\bloan|\bemi\b|\bdebt\b(?! fund)|owe|borrow/], () => `If you have expensive debt, like credit card dues or a personal loan, paying it off often comes first. Card interest can be **30–40% a year**, far more than investments have typically earned, and that interest is certain while investment returns aren't.\n\nA common approach: keep a small cushion, clear the costliest debt, then start or grow your ${rs(p.monthly)} plan. Cheaper loans, like some education loans, are a closer call. For a big loan, a SEBI-registered investment adviser can help you weigh it.`],
+    ['tax', [/\btax|itr|80c|elss|capital gain/], () => `Taxes on investments in India depend on the type of fund, how long you hold it, and the rules that year, and those rules change fairly often.\n\nThe general idea: you usually pay tax on the **gain** when you sell, not on the money you put in, and holding longer can sometimes mean a lower rate. Some special funds offer tax savings but lock your money in for years. Check the current rules, or ask a tax professional, before making a decision based on tax.`],
+    ['fd', [/\bfd\b|fixed deposit|savings account|\brd\b|recurring deposit|bank/, /inflation|rising prices|price rise/], () => `A savings account or fixed deposit (FD) is simple and predictable. Bank deposits also come with some government-backed insurance, up to a limit. The trade-off is growth: after rising prices (inflation), the money may only just hold its value.\n\nYour Safety pot plays a similar role. It has often earned a little more, but it isn't a bank deposit, it isn't insured the same way, and its value can dip slightly. For money you need very soon, an FD or savings account is a perfectly reasonable choice too.`],
+    ['withdraw', [/withdraw|take (my )?money out|take it out|get (my )?money back|redeem|access|lock.?in|stuck|liquid(ity)?\b(?! fund)/], () => { const x = PRODUCTS[named || 'liquid']; return `The options in your plan don't have a lock-in, so you can usually ask to withdraw anytime.\n\n- **${x.friendly}**: ${x.withdraw.charAt(0).toLowerCase() + x.withdraw.slice(1)}.\n- **Growth options** like the Steady grower usually take a few working days.\n\nTimings can vary, and the amount you get is whatever the investment is worth that day, which could be less than you put in. That's why money you may need soon is best kept in steadier options.`; }],
+    ['regulation', [/sebi|regulat|scam|fraud|trust/, /shuts? ?down|close[sd]?( down)?|goes bust|bankrupt|disappear/, /\bsafe\b/, /\bapp\b|growwz/], () => `Mutual funds in India are regulated by SEBI, which sets rules for how funds are run and what they must tell you. Those rules also cover how investors' money is kept and reported, which adds protections if an app or platform runs into trouble.\n\nBut regulation is about fair rules, not guaranteed results. **It doesn't stop investments from going down in value.** It's also worth double-checking any app or adviser is properly registered before you use them.`],
+    ['stocks', [/\bstocks?\b|shares?\b|single compan|one compan|pick compan/], () => `Buying one company is like betting on one cricket player. If they have a bad season, your whole bet suffers. A single stock can fall **30–50% or more**, sometimes for good, and that's hard to sit through with your first salary.\n\nA fund spreads your ${rs(p.monthly)} across many companies, so one bad one hurts less. The trade-off is that you'll never get the huge win of picking the next big company. For a first investment, many people find the spread-out approach easier to stick with.`],
+    ['crypto', [/crypto|bitcoin|\bnft|web3/], () => `Crypto is outside what GrowwZ covers. Its prices can swing **50% or more** in short periods, it has no business earnings behind it the way company shares do, and the rules around it in India are still changing, including high taxes.\n\nIf you're curious, a common approach is to invest only a tiny amount you could afford to lose completely, and only after your cushion and your main plan are in place.`],
+    ['start', [/salary|paycheck|pay ?check|where (do|should) i start|how (do|should) i (start|begin)|begin|new job|first (job|income|time)|beginner|never invested/], () => `Congrats on the paycheck! A simple order many first-time earners follow:\n\n- **Know your month.** About ${rs(m.left)} is left after your ${rs(p.expenses)} of expenses.\n- **Build a cushion** for surprises, somewhere you can get to quickly.${p.cushion === 'none' ? ' You said you don’t have one yet, so your plan leans on the Safety pot first.' : ''}\n- **Then invest a fixed amount monthly.** You picked ${rs(p.monthly)}, which is ${m.pct}% of your income.\n\nStarting small feels slow, but it's easier to keep going. Investments can go down as well as up, so only invest money you won't need soon.`],
+    ['timing', [/right time|good time|wait (for|until)|market (is )?(high|expensive|low)|timing|should i wait|start now|later/, /\bwait\b|before (i )?(start|invest)/], () => `Nobody can reliably tell when the market is "high" or "low", not even professionals. Waiting for the perfect moment often means waiting a long time.\n\nThat's one reason for a monthly SIP: you invest ${rs(p.monthly)} each month whatever the price, so some months you buy high and some low. It doesn't prevent losses. It just takes the guessing out. The bigger question is your timeline: for ${t.span}, your plan keeps growth to ${al.filter(a => a[0] !== 'liquid').reduce((a,b) => a + b[1], 0)}%.`],
+    ['goa', [/\bgoa\b|\btrip\b|travel|vacation|holiday|two years|2 years|2 yrs/], () => `For money you need in about 2 years, the big question is: **what if it's down right when you need it?** With so little time, a fall may not have time to recover.\n\nThat's why a short goal leans on steadier options like the Safety pot, which usually moves very little. You give up some growth, but your trip money is more likely to be there. Your target is ${rs(tg)}. As the trip gets close, many people move the growth part into steadier options to protect what they have.`],
+    ['difference', [/differen|index fund|mutual fund|\bvs\b|versus|compare/], () => named && named !== 'index' ? `The **${PRODUCTS[named].friendly}** (${PRODUCTS[named].name}): ${PRODUCTS[named].one}\n\nThe trade-off: ${CATS[PRODUCTS[named].cat].trade} ${PRODUCTS[named].wrong}\n\nCompared with the Steady grower, it ${PRODUCTS[named].risk < 3 ? 'usually swings less but has typically grown more slowly' : 'can swing even more'}. Explore shows all the options side by side.` : `A **mutual fund** is a big pot of money from many people, managed by professionals who invest it for everyone.\n\nAn **index fund** is one *kind* of mutual fund. Instead of experts picking companies, it simply copies a ready-made list, like the 50 large companies selected for the Nifty 50 index.\n\nThe trade-off: index funds usually charge lower fees and are easy to understand, but they won't beat the market. They just follow it, including when it falls. Your Steady grower is an index fund.`],
+    ['crash', [/crash|recession|bear market|panic/, /fall|drop|\bdown\b|\bdips?\b/, /market/], () => `Big falls happen, and no one can reliably predict when. Company shares have dropped 20–40% a few times in the past, and getting back has taken anywhere from months to several years. **There's no guaranteed recovery timeline.**\n\nFor you: with your ${plan} plan, the growth part would feel it most. The Safety pot would likely move much less. Some people keep their ${rs(p.monthly)} going during a fall, since it buys more at lower prices. That has worked for some in the past, but only if they didn't need the money before prices came back.`],
+    ['lose', [/lose|loss|risk|guarantee|safe|zero|all my money/], () => `Yes, the value can go down, and how much depends on where it sits:\n\n- **Safety pot**: usually moves very little, but it isn't risk-free.\n- **Steady grower**: can fall 20% or more in a bad year.\n- **Gold shield**: can fall, or stay flat for years.\n\nNo option here guarantees returns. Your plan (${plan}) was built around your timeline of ${t.span}. More time gives more room to ride out dips, but recoveries have no set timeline.`],
+    ['gold', [/\bgold\b|jewell?ery/], () => `Gold's value follows the price of gold. It has often held up when company shares were struggling, which is why ${has('gold') ? `your plan gives it a small ${al.find(a => a[0]==='gold')[1]}% slice` : 'some plans give it a small slice'}.\n\nThe trade-off: gold doesn't earn anything by itself, it can fall 10–15%, and it can stay flat for years. A gold fund avoids making charges and storage worries, but it's still an investment whose value moves.`],
+    ['emergency', [/emergency|cushion|surprise|rainy day|medical|job loss|lose my job/], () => `An emergency cushion is money for surprises, like a medical bill or a gap between jobs. A common guide is about **3–6 months of expenses**; for you that's roughly ${rs(p.expenses*3)} to ${rs(p.expenses*6)}.\n\nIt should be somewhere steady and easy to reach, like a savings account or a lower-risk option such as the Safety pot. ${p.cushion === 'none' ? 'You said you don’t have one yet, which is why your plan puts the Safety pot first.' : 'Having one means a surprise won’t force you to sell investments at a bad time.'}`],
+    ['howmuch', [/how much|what percent|percentage|50.?30.?20|budget/, /(of|from) my (salary|income|pay)|save more|increase|raise|hike|increment|bonus|should i (invest|save)/], () => `There's no universal right percentage. Choose an amount that leaves enough for expenses, surprises and your goal, and that you can sustain. Right now you're at ${m.pct}% (${rs(p.monthly)}), leaving ${rs(Math.max(m.free,0))} free.\n\nThe trade-off: more now reaches goals sooner but leaves less for daily life and surprises. A common habit is to **raise the amount a little with each pay rise or bonus**. Try the What if? sliders on your plan to see how amount and time change things.`],
+    ['enough', [/enough|too little|too small|small amount|₹ ?\d|\d+ ?(a|per|\/) ?month|rs\.? ?\d/], () => {
+      const hit = s.match(/(?:₹|rs\.?)?\s?(\d[\d,]*)/), amt = hit ? Math.min(+hit[1].replace(/,/g, ''), p.income) || p.monthly : p.monthly;
+      const q2 = {...p, monthly: amt}, m2 = money(q2);
+      return `It's a real start. ${rs(amt)} a month is ${m2.pct}% of your income. If returns looked like past averages, your ${rs(tg)} goal could take about ${monthsToGoal(q2)} months, but that's an illustration, not a promise.\n\nThe trade-off: a bigger amount gets you there sooner but leaves less for daily life. At ${rs(amt)} you'd have ${rs(m2.free)} free each month. Many people start with an amount they're comfortable with and **raise it a little with each pay rise**. Try the What if? sliders on your plan to see the difference.`; }],
+    ['fees', [/fee|charge|expense ratio|commission|cost/], () => `Funds charge a small yearly fee, usually shown as a percentage called the expense ratio. It's taken from the fund's value, so you don't pay it separately.\n\nIt matters more than it looks: over many years, a 1% difference in fees can add up to a noticeable amount. Index funds, like your Steady grower, usually have lower fees because they simply follow a list of companies. Check a fund's fee before you invest.`],
+    ['nav', [/\bnav\b|unit price|units?\b/], () => `**NAV** (net asset value) is simply the price of one unit of a fund on a given day. When you invest ${rs(p.monthly)}, you get as many units as that money buys at that day's price.\n\nA lower NAV doesn't mean a fund is "cheaper" or better. What matters is how the value of your units changes over time, and that can go up or down.`],
+    ['pause', [/pause|stop|skip|miss|cancel|can't pay|cannot pay/], () => `You can usually pause or stop a monthly SIP without a penalty, and what you've already invested stays invested. In GrowwZ's Goals tab you can also **skip a month** and see how it shifts your date.\n\nThe trade-off: skipping pushes your goal back a little, and stopping for good means your money grows only from what's already in. Life happens, and adjusting is better than stretching your budget.`],
+    ['change', [/change (my )?(plan|answer|risk|mix)|more risk|less risk|more growth|safer|aggressive|conservative/, /\b(want|change|switch|prefer|take)\b/], () => `You can change your answers anytime from **Review my answers** on the plan screen, and the mix updates straight away.\n\nThe trade-off works both ways: more growth could mean a bigger ending amount, but also bigger falls, which matter more the sooner you need the money. A steadier mix swings less but has typically grown more slowly. With ${t.span} to go, your plan currently keeps ${al.filter(a => a[0] !== 'liquid').reduce((a,b) => a + b[1], 0)}% in growth.`],
+    ['explain', [/what is|what's|what are|explain|mean|how does/], () => named ? `**${PRODUCTS[named].friendly}** (${PRODUCTS[named].name}): ${PRODUCTS[named].one}\n\n${PRODUCTS[named].how}\n\n**What could go wrong:** ${PRODUCTS[named].wrong} ${has(named) ? `It's ${al.find(a => a[0]===named)[1]}% of your plan. Tap **Why this?** on it to see why.` : 'It isn’t in your plan right now.'}` : null],
+    ['compounding', [/compound|grow over time|interest on interest/], () => `Compounding is when your growth starts growing too. If ₹1,000 grew 10% to ₹1,100, the next year's growth would be on ₹1,100, not ₹1,000.\n\nIt's why time matters so much, and why starting early can help. But it works both ways: a fall also shrinks the base that future growth builds on. The What if? sliders on your plan show how time changes the growth part.`],
+    ['why', [/why|choose|chose|pick|this plan|my plan|trade.?off|recommend/], () => `${planReason(p)}\n\n${whyPoints(p).slice(0,3).map(x => `- **${x[0]}**: ${x[1]}`).join('\n')}\n\nThe trade-off: a steadier mix has typically grown more slowly, and a growth-heavy mix swings more. None of it is guaranteed. Tap **Why this?** on any part of your plan for the full reasoning.`],
+    ['sip', [/\bsip\b|auto|every month|monthly invest|systematic/], () => `**SIP** stands for Systematic Investment Plan. It just means investing a fixed amount automatically every month, like a subscription for your future self.\n\nFor you, that's ${rs(p.monthly)}, taken right after payday. The upside: no need to guess the "right" day, and it builds a habit. The catch: it doesn't protect you from losses. It only spreads your buying over time. You can usually pause or stop anytime.`],
+    ['progress', [/goal|track|progress|how am i doing|behind|ahead/], () => { const gs = goalState(); return S.planStarted ? `You've got ${rs(gs.saved)} towards ${rs(tg)}. ${gs.onTrack ? `If things went roughly like past averages, ${rs(p.monthly)}/month could get you there around ${monthLabel(gs.finish)}, before your ${monthLabel(gs.T)} date.` : `At this pace you might get there around ${monthLabel(gs.finish)}, a bit after ${monthLabel(gs.T)}.`}\n\nThe things you control: **how much**, **the date**, and **staying consistent**. Market moves can change the number month to month, in either direction, so treat dates as a rough guide.` : `Start your plan and I can talk through your progress. For now, try the What if? sliders to see how the amount and time change things.`; }],
+    ['hello', [/^(hi|hey|hello|namaste|thanks|thank you|ok|okay|cool)\b/], () => `Hi ${esc(p.name || 'there')}! I can help with your plan, your ${goalName(p)}, or anything about investing that feels confusing. What's on your mind?`]
+  ];
+  let best = null, bestScore = 0;
+  for(const [, pats, fn] of TOPICS){
+    const score = pats.reduce((a, re) => a + (re.test(s) ? 1 : 0), 0);
+    if(score > bestScore){ const out = fn(); if(out){ best = out; bestScore = score; } }
+  }
+  if(best) return best;
+  if(named) return `**${PRODUCTS[named].friendly}** (${PRODUCTS[named].name}): ${PRODUCTS[named].one}\n\n**What could go wrong:** ${PRODUCTS[named].wrong}`;
+  return `Good question. The AI coach isn't available right now, so I can only give ready-made answers. I can help with things like: getting started, why your plan looks the way it does, losing money, market falls, withdrawals, SIPs, fees, taxes, debt, emergency savings, or whether ${rs(p.monthly)} a month is enough. Try asking about one of those.`;
+}
+function md(text){
+  let h = esc(text.trim()).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/(^|[^*])\*(?!\s)(.+?)\*(?!\*)/g, '$1<i>$2</i>');
+  const blocks = h.split(/\n{2,}/).map(b => {
+    const lines = b.split('\n');
+    const B = /^\s*[-•*]\s+/;
+    if(lines.every(l => B.test(l))) return '<ul>' + lines.map(l => '<li>' + l.replace(B, '') + '</li>').join('') + '</ul>';
+    return '<p>' + lines.map(l => B.test(l) ? '• ' + l.replace(B, '') : l.replace(/^#+\s*/, '')).join('<br>') + '</p>';
+  }).join('');
+  let out = blocks;
+  for(const [k, re] of AUTOLINK){
+    let done = false;
+    out = out.replace(/(<[^>]+>)|([^<]+)/g, (all, tag, txt) => {
+      if(tag || done) return all;
+      return txt.replace(re, w => { if(done) return w; done = true; return T(k, w); });
+    });
+  }
+  return out;
+}
+
+function vAsk(){
+  const p = S.profile, k = S.explain, pr = k && PRODUCTS[k];
+  const offline = coachChecked && !coach;
+  let explainer = '';
+  if(pr){
+    const x = explainParts(k);
+    explainer = `<div class="msg">
+      <div class="row between"><div class="bot"><i>G</i>${esc(pr.friendly)} · ${esc(pr.name)}</div><button class="linkbtn xs" data-a="closeExplain">Close</button></div>
+      <div class="sec"><h4>Why it fits you</h4><p>${x.fits}</p></div>
+      <div class="sec"><h4>What it does</h4><p>${pr.how}</p></div>
+      <div class="sec risk-sec"><h4>What could go wrong</h4><p>${x.wrong}</p></div>
+      <div class="sec"><h4>Why not something else?</h4>${x.not.map(t => `<p>${t}</p>`).join('')}</div>
+    </div>`;
+  }
+  const starters = [
+    'I just got my first salary. Where should I start?',
+    `Is ${rs(p.monthly)} a month enough?`,
+    p.goal === 'trip' ? `I want my Goa trip money in two years. What should I think about?` : 'What happens if the market crashes?',
+    'Why shouldn’t I just buy one stock?'
+  ];
+  if(pr) starters.splice(0, 2, `Can I lose money in the ${pr.friendly}?`, `How would my plan change without the ${pr.friendly}?`);
+  const chat = S.chat.map(m => m.me
+    ? `<div class="msg me">${esc(m.text)}</div>`
+    : `<div class="msg"><div class="bot"><i>G</i>GrowwZ${m.offline ? ' · basic answer' : ''}</div>
+        <div class="ai" ${m.pending ? 'id="live"' : ''}>${m.pending && !m.text ? '<span class="typing" aria-label="Thinking"><i></i><i></i><i></i></span>' : md(m.text)}</div>
+        ${m.error ? `<p class="xs" style="color:var(--warn);margin:0">${esc(m.error)} ${m.retry ? '<button class="linkbtn xs" data-a="retry">Try again</button>' : ''}</p>` : ''}
+        ${m.pending ? '' : `<div class="foot">For learning, not financial advice. Past returns don’t guarantee future ones.</div>`}
+      </div>`).join('');
+  return `
+    <div class="row between" style="align-items:flex-end">
+      <div><h2 class="t">Ask GrowwZ</h2><p class="sub small">Your investing coach. Ask anything, in your own words.</p></div>
+      ${S.chat.length ? '<button class="linkbtn xs" data-a="clearChat">New chat</button>' : ''}
+    </div>
+    <div class="card" style="padding:12px 14px;gap:8px">
+      <span class="xs muted" style="font-weight:600">Answers use your GrowwZ profile</span>
+      <div class="ctx">
+        <span class="pill">${rs(p.income)} pay</span>
+        <span class="pill">${rs(p.monthly)}/mo</span>
+        <span class="pill">${cap(goalName(p))} · ${TIMES[p.time].span}</span>
+        <span class="pill">${{nervous:'Prefers calm',okay:'OK with small dips',fine:'OK with swings'}[p.comfort]}</span>
+        <button class="linkbtn xs" data-a="redo">Edit</button>
+      </div>
+    </div>
+    ${offline ? `<div class="card tip small" style="padding:12px">The AI coach can't run in this view, so you'll get ready-made answers based on your profile. Open the published page on claude.ai for the full coach.</div>` : ''}
+    <div class="chips scroll" role="group" aria-label="Learn about">${Object.entries(PRODUCTS).map(([kk,x]) => `<button class="chip" data-a="explain" data-v="${kk}" aria-pressed="${kk===k}">${x.friendly}</button>`).join('')}</div>
+    ${explainer}
+    ${S.chat.length ? chat : `<div class="starter"><span class="xs muted">Not sure what to ask? Try:</span>${starters.map(q => `<button data-a="askq" data-v="${esc(q)}">${esc(q)}</button>`).join('')}</div>`}`;
+}
+
+async function ask(text){
+  text = text.trim();
+  if(!text || busy) return;
+  S.chat.push({me:true, text});
+  const reply = {me:false, text:'', pending:true};
+  S.chat.push(reply);
+  S.screen = 'ask';
+  closeOverlay();
+  render(true); scrollChat();
+
+  if(!coach){
+    busy = {abort(){}};
+    await new Promise(r => setTimeout(r, 450));
+    busy = null;
+    Object.assign(reply, {text: offlineAnswer(text), pending:false, offline:true});
+    render(true); scrollChat(); return;
+  }
+  const history = S.chat.slice(0, -1).filter(m => m.text && !m.error).slice(-10).map(m => ({role: m.me ? 'user' : 'assistant', content: m.text}));
+  while(history.length && history[0].role !== 'user') history.shift();
+  const ctl = new AbortController(); busy = ctl; render(true); scrollChat();
+  try{
+    await coach([{role:'user', content: coachRules()}, ...history], {
+      cache:false, modelTier:'default', signal: ctl.signal,
+      onText: ({text}) => { reply.text = text; const el = document.getElementById('live'); if(el){ el.innerHTML = md(text); scrollChat(); } }
+    });
+    reply.pending = false;
+  }catch(e){
+    reply.pending = false;
+    const code = e && e.code;
+    reply.text = code === 'refused' ? '' : (e && e.text) || reply.text;
+    if(code === 'cancelled'){ if(!reply.text) reply.text = '*Stopped.*'; }
+    else if(['not_granted','sampling_disabled','not_declared','capability_disabled','capability_removed'].includes(code)){
+      coach = null; reply.text = offlineAnswer(text); reply.offline = true;
+    }
+    else if(code === 'rate_limited'){ reply.error = 'Lots of questions at once. Give it a minute, then try again.'; reply.retry = true; }
+    else if(code === 'session_expired'){ reply.error = 'Your Claude session expired. Sign in again to keep chatting.'; }
+    else if(code === 'refused'){ reply.error = 'I can’t help with that one. Try asking about your plan, your goal or how investing works.'; }
+    else { reply.error = 'The connection dropped before I finished.'; reply.retry = true; }
+    if(!reply.text && reply.error) reply.text = '…';
+  }finally{
+    busy = null; save(); render(true); scrollChat();
+  }
+}
+function scrollChat(){ const scr = $('#scr'); if(S.screen === 'ask' && S.chat.length) scr.scrollTop = scr.scrollHeight; }
+
+/* ---------- Goals ---------- */
+function goalState(){
+  const p = S.profile, r = blendedRate(p)/12, tg = goalTarget(p), T = goalMonths(p);
+  const inv = S.planStarted ? S.months : 0, skip = S.planStarted ? (S.skipped || 0) : 0, E = inv + skip;
+  const saved = S.planStarted ? S.bal : 0;
+  let m = 0, v = saved; while(v < tg && m < 600){ v = (v + p.monthly) * (1 + r); m++; }
+  const finish = E + m, rem = Math.max(T - E, 1);
+  const req = Math.max(0, (tg - saved * Math.pow(1 + r, rem)) / fv(1, blendedRate(p), rem));
+  return {saved, put: S.planStarted ? S.put : 0, inv, skip, E, T, finish, req, onTrack: finish <= T, done: saved >= tg};
+}
+// progress is a running balance, so changing the monthly amount never rewrites past months
+function addMonth(invest){
+  const r = blendedRate(S.profile) / 12;
+  if(invest){ S.bal = (S.bal + S.profile.monthly) * (1 + r); S.put += S.profile.monthly; S.months++; }
+  else { S.bal *= (1 + r); S.skipped++; }
+  S.hist.push(S.bal);
+}
+function goalSheet(){
+  const p = S.profile, tg = goalTarget(p), T = goalMonths(p);
+  openSheet(`
+    <div class="row between"><h3 class="t" style="font-size:22px">Edit your goal</h3><button class="linkbtn xs" data-a="close">Close</button></div>
+    <div class="money"><label for="g-note">Why does this goal matter to you?<small>A line in your own words. We'll show it on your goal.</small></label><input class="field" id="g-note" maxlength="80" value="${esc(S.goalNote)}" placeholder="${p.goal==='trip' ? 'Goa with college friends before we all move cities' : 'What this money will make possible'}"></div>
+    ${moneyField('g-amt', 'Target amount', 'How much you want to have', tg)}
+    <div class="ctl"><div class="row"><label for="g-m" class="small" style="font-weight:600">Target date</label><output id="o-g">${monthLabel(T)}</output></div>
+      <input type="range" id="g-m" min="3" max="120" step="1" value="${T}"></div>
+    <p class="xs muted" style="margin:0">A later date or a smaller target means less per month. Neither is a failure. It's your plan.</p>
+    <button class="btn" data-a="goalSave">Save goal</button>`);
+  $('#g-m').addEventListener('input', e => { $('#o-g').textContent = monthLabel(+e.target.value); });
+  $('#g-amt').addEventListener('input', e => { const d = e.target.value.replace(/\D/g,'').slice(0,8); e.target.value = d ? (+d).toLocaleString('en-IN') : ''; });
+}
+function vGoals(){
+  const p = S.profile, g = GOALS[p.goal], rate = blendedRate(p), tg = goalTarget(p), gs = goalState();
+  const reason = `<div class="card hero">
+      <div class="row between"><span class="xs" style="opacity:.8;font-weight:700;letter-spacing:.08em">YOU'RE INVESTING FOR</span><button class="linkbtn xs" style="color:inherit" data-a="goalEdit">Edit</button></div>
+      <div class="row" style="align-items:flex-start"><span style="width:28px;height:28px;flex:none;margin-top:2px">${ICON[g.icon]}</span>
+        <div><h3 class="t" style="font-size:22px">${g.label}</h3>
+        ${S.goalNote ? `<p class="reason" style="margin-top:6px">"${esc(S.goalNote)}"</p>` : `<button class="linkbtn small" style="color:inherit;margin-top:6px" data-a="goalEdit">Add why this matters to you</button>`}</div></div>
+      <div class="row small" style="gap:16px;opacity:.9"><span><b class="num">${rs(tg)}</b> target</span><span>by <b>${monthLabel(gs.T)}</b></span></div>
+    </div>`;
+  if(!S.planStarted){
+    return `<h2 class="t">Your goal</h2>${reason}
+      <div class="card">
+        <p style="margin:0">To get there by ${monthLabel(gs.T)}, it could take about <b>${rs(r100(neededMonthly(p)))}/month</b>. Your plan puts in <b>${rs(p.monthly)}</b>.</p>
+        <p class="small muted" style="margin:0">Once you start, you'll see what your money has covered so far, and you'll always be able to change the amount or the date.</p>
+        <button class="btn" data-a="go" data-v="plan">See my plan</button>
+      </div>`;
+  }
+  const pct = Math.min(1, gs.saved / tg);
+  let acc = 0;
+  const parts = g.parts.map(([label, share]) => {
+    const from = acc, to = acc + share; acc = to;
+    const fill = Math.max(0, Math.min(1, (pct - from) / share));
+    return {label, share, fill, amt: tg * share};
+  });
+  const cur = parts.find(x => x.fill < 1);
+  const W = 320, H = 140, pl = 8, pr = 8, pt = 14, pb = 22, N = Math.max(gs.finish, gs.T, gs.E, 12);
+  const ymax = tg * 1.15, x = m => pl + (m / N) * (W - pl - pr), y = v => pt + (1 - Math.min(v, ymax) / ymax) * (H - pt - pb);
+  const rr = rate/12;
+  let past = '', ahead = '', v = 0;
+  S.hist.forEach((hv, m) => { past += (m?'L':'M') + x(m).toFixed(1) + ' ' + y(hv).toFixed(1); });
+  v = gs.saved;
+  for(let m = gs.E; m <= N; m++){ ahead += (m===gs.E?'M':'L') + x(m).toFixed(1) + ' ' + y(v).toFixed(1); v = (v + p.monthly) * (1 + rr); }
+  const status = gs.done
+    ? `<div class="card"><span class="pill brand" style="align-self:flex-start">Goal reached</span><p style="margin:0">You've got ${rs(gs.saved)}, enough for your ${goalName(p)}. Before you withdraw, you might move any growth money into the Safety pot so a late dip can't shrink it.</p></div>`
+    : `<div class="card">
+        <div class="row between"><h3 class="t" style="font-size:16px">Are you on track?</h3><span class="pill ${gs.onTrack ? 'brand' : 'sun'}">${gs.onTrack ? 'On track' : 'A little behind'}</span></div>
+        <p class="small" style="margin:0">${gs.onTrack
+          ? `At ${rs(p.monthly)}/month you could reach ${rs(tg)} around <b>${monthLabel(gs.finish)}</b>, ${gs.finish < gs.T ? `${gs.T - gs.finish} month${gs.T - gs.finish > 1 ? 's' : ''} before your date` : 'right on your date'}.`
+          : `At ${rs(p.monthly)}/month you'd reach ${rs(tg)} around <b>${monthLabel(gs.finish)}</b>, after your ${monthLabel(gs.T)} date. You can:`}</p>
+        ${gs.onTrack ? '' : `<div class="row" style="gap:8px;flex-wrap:wrap">
+          <button class="btn sm" style="flex:1" data-a="goalRaise" data-v="${r100(gs.req)}">Invest ${rs(r100(gs.req))}/mo</button>
+          <button class="btn ghost sm" style="flex:1" data-a="goalMove" data-v="${gs.finish}">Move date to ${monthLabel(gs.finish)}</button>
+        </div>`}
+        <p class="xs muted" style="margin:0">Based on your plan's mix growing steadily, which real markets don't do. Treat the dates as a rough guide.</p>
+      </div>`;
+  return `
+    <h2 class="t">Your goal</h2>
+    ${reason}
+    <div class="card">
+      <div class="row between" style="align-items:flex-end"><div><div class="big num">${rs(gs.saved)}</div><div class="small muted num">of ${rs(tg)} · ${Math.round(pct*100)}%</div></div>
+        <div style="text-align:right" class="xs muted num">You put in ${rs(gs.put)}<br>Growth so far ${gs.saved - gs.put >= 0 ? '+' : ''}${rs(gs.saved - gs.put)}</div></div>
+      <div class="parts">${parts.map(x => `<i style="flex:${x.share}"><b style="width:${x.fill*100}%"></b></i>`).join('')}</div>
+      <ul class="plist">${parts.map(x => `<li class="${x.fill >= 1 ? 'done' : x === cur ? 'now' : ''}"><span>${x.label}</span><span class="num muted">${x.fill >= 1 ? 'Covered' : x === cur ? `${Math.round(x.fill*100)}% of ${rs(x.amt)}` : rs(x.amt)}</span></li>`).join('')}</ul>
+    </div>
+    ${status}
+    <div class="card">
+      <h3 class="t" style="font-size:16px">This month</h3>
+      <p class="small muted" style="margin:0">Your ${rs(p.monthly)} goes in on the 5th. Life happens, and skipping a month is allowed.</p>
+      <div class="row" style="gap:8px">
+        <button class="btn sm" style="flex:1.4" data-a="month">Invest ${rs(p.monthly)} (demo)</button>
+        <button class="btn ghost sm" style="flex:1" data-a="skip">Skip this month</button>
+      </div>
+      <p class="xs muted" style="margin:0">${gs.inv} month${gs.inv === 1 ? '' : 's'} invested${gs.skip ? ` · ${gs.skip} skipped` : ''}. Want to change the amount? <button class="linkbtn xs" data-a="go" data-v="plan">Try What if?</button></p>
+    </div>
+    <div class="card">
+      <div class="row between"><h3 class="t" style="font-size:16px">The road to ${monthLabel(gs.T)}</h3></div>
+      <svg class="chart" viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Progress so far and possible path to the goal">
+        <line x1="${pl}" x2="${W-pr}" y1="${y(tg)}" y2="${y(tg)}" stroke="var(--sun)" stroke-dasharray="4 4" stroke-width="1.5"/>
+        <text x="${pl}" y="${y(tg)-5}">Goal ${rs(tg)}</text>
+        <line x1="${x(gs.T)}" x2="${x(gs.T)}" y1="${pt}" y2="${y(0)}" stroke="var(--line)" stroke-width="1.5"/>
+        <text x="${x(gs.T)}" y="${H-6}" text-anchor="${x(gs.T) > W - 40 ? 'end' : 'middle'}">${monthLabel(gs.T)}</text>
+        <line x1="${pl}" x2="${W-pr}" y1="${y(0)}" y2="${y(0)}" stroke="var(--line)"/>
+        <path d="${ahead}" fill="none" stroke="var(--muted)" stroke-width="2" stroke-dasharray="2 4" stroke-linecap="round"/>
+        <path d="${past}" fill="none" stroke="var(--brand)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="${x(gs.E)}" cy="${y(gs.saved)}" r="5" fill="var(--brand)" stroke="var(--surface)" stroke-width="2"/>
+        <text x="${pl}" y="${H-6}">${monthLabel(0)}</text>
+      </svg>
+      <p class="xs muted" style="margin:0">Solid: where you are. Dotted: where you could be if you keep going. Real values will wobble up and down month to month. What you control is the amount, the date and staying consistent.</p>
+    </div>
+    <button class="card" style="border:0;text-align:left" data-a="askq" data-v="How am I doing on my goal so far, and what could change the timeline?">
+      <div class="row"><span class="bot"><i>G</i></span><strong>Talk it through with GrowwZ</strong></div>
+      <span class="small muted">How you're doing, and what could speed it up or slow it down.</span>
+    </button>`;
+}
+
+const VIEWS = {onboarding:vOnboarding, home:vHome, plan:vPlan, explore:vExplore, ask:vAsk, goals:vGoals};
+const JOURNEY = [
+  ['paycheck','First paycheck','question 1: your month', {screen:'onboarding', step:0}],
+  ['questions','4 quick questions','each says why it’s asked', {screen:'onboarding', step:1}],
+  ['understood','What I understood','your answers played back', {screen:'onboarding', step:5}],
+  ['plan','Starter plan','tap "Why this?" on any part', {screen:'plan'}],
+  ['whatif','What if?','amount × time × growth', {screen:'plan', anchor:'sim'}],
+  ['ask','Ask GrowwZ','an AI coach that knows your plan', {screen:'ask'}],
+  ['goals','Your goal','your reason, and your progress', {screen:'goals'}]
+];
+const ALSO = [['home','Home','your next step'],['explore','Explore','learn how options differ']];
+
+/* ---------- render ---------- */
+let lastJump = null;
+function render(keepScroll){
+  const scr = $('#scr'), top = scr.scrollTop;
+  scr.innerHTML = VIEWS[S.screen]();
+  scr.scrollTop = keepScroll ? top : 0;
+  const tabbed = S.screen !== 'onboarding';
+  $('#tabs').hidden = !tabbed;
+  const tabOf = {home:'home', plan:'home', explore:'explore', ask:'ask', goals:'goals'}[S.screen];
+  $('#tabs').innerHTML = [['home','Home'],['explore','Explore'],['ask','Ask'],['goals','Goals']]
+    .map(([k,l]) => `<button data-a="go" data-v="${k}" aria-current="${tabOf===k}">${ICON[k]}${l}</button>`).join('');
+  $('#dock').innerHTML = S.screen === 'ask'
+    ? `<form class="composer" id="cf"><input class="field" id="cq" placeholder="Ask about money, your plan, anything…" autocomplete="off" aria-label="Your question">${busy && busy.signal ? '<button class="btn stop" type="button" data-a="stop">Stop</button>' : '<button class="btn" type="submit">Ask</button>'}</form>` : '';
+  const cur = S.screen === 'onboarding' ? (S.step === 0 ? 'paycheck' : S.step >= 5 ? 'understood' : 'questions') : S.screen === 'plan' ? (lastJump === 'whatif' ? 'whatif' : 'plan') : S.screen;
+  $('#jump').innerHTML = JOURNEY.map(([k,l,d],i) => `<button data-a="jump" data-v="${k}" aria-current="${cur===k}"><b>${i+1}</b><span>${l} <small>· ${d}</small></span></button>`).join('');
+  $('#jump2').innerHTML = ALSO.map(([k,l,d]) => `<button data-a="go" data-v="${k}" aria-current="${cur===k}"><b>·</b><span>${l} <small>· ${d}</small></span></button>`).join('');
+  if(S.screen === 'onboarding' && S.step === 2 && $('#g-target')){
+    $('#g-target').addEventListener('input', e => {
+      const digits = e.target.value.replace(/\D/g, '').slice(0, 9);
+      e.target.value = digits ? (+digits).toLocaleString('en-IN') : '';
+      const val = +digits || 0, def = defaultTarget(S.profile);
+      S.goalTarget = val === def ? null : val;
+      S.goalMonths = null;
+      const eff = $('.whybox .effect'); if(eff && val >= 1000) eff.textContent = QUESTIONS[2].effect(S.profile.goal);
+      save();
+    });
+  }
+  if(S.screen === 'onboarding' && S.step === 0){
+    [['inc','income'],['exp','expenses'],['amt','monthly']].forEach(([id, f]) => {
+      $('#'+id).addEventListener('input', e => {
+        const digits = e.target.value.replace(/\D/g, '').slice(0, 8);
+        S.profile[f] = +digits || 0;
+        e.target.value = digits ? (+digits).toLocaleString('en-IN') : '';
+        S.sim = null;
+        updatePaycheck();
+      });
+    });
+    $('#nm').addEventListener('input', e => { S.profile.name = e.target.value.trim(); save(); });
+  }
+  if(S.screen === 'plan'){
+    [['s-m','monthly'],['s-y','years'],['s-r','rate']].forEach(([id, f]) => {
+      $('#'+id).addEventListener('input', e => { S.sim[f] = +e.target.value; updateSim(); });
+    });
+  }
+  save();
+}
+function markAllTouched(){ QUESTIONS.forEach(q => S.touched[q.key] = true); }
+function go(screen){
+  lastJump = null;
+  if(screen !== 'onboarding'){ S.onboarded = true; markAllTouched(); }
+  if(screen === 'onboarding'){ S.step = 0; S.back5 = false; }
+  S.screen = screen; closeOverlay(); render();
+}
+function toast(msg){
+  const o = $('#overlay'); const t = document.createElement('div');
+  t.className = 'toast'; t.setAttribute('role','status'); t.textContent = msg; o.appendChild(t);
+  setTimeout(() => t.remove(), 2800);
+}
+function closeOverlay(){ const s = $('#overlay .scrim'); if(s) s.remove(); }
+function openSheet(html){
+  closeOverlay();
+  const d = document.createElement('div');
+  d.className = 'scrim'; d.dataset.a = 'close';
+  d.innerHTML = `<div class="sheet" role="dialog" aria-modal="true">${html}</div>`;
+  $('#overlay').appendChild(d);
+  const f = d.querySelector('button, input'); if(f) f.focus();
+}
+function showTerm(k){
+  const [name, def] = TERMS[k];
+  openSheet(`<span class="pill brand" style="align-self:flex-start">In plain words</span><h3 class="t" style="font-size:24px">${name}</h3><p style="margin:0;font-size:16px">${def}</p><button class="btn" data-a="close">Got it</button>`);
+}
+function validPaycheck(){
+  const p = S.profile;
+  if(p.income <= 0){ toast('Add your monthly take-home pay to continue.'); return false; }
+  if(p.monthly < 100){ toast('Try at least ₹100. That’s the smallest amount most funds accept.'); return false; }
+  if(p.monthly > p.income){ toast('The amount to invest can’t be more than your pay.'); return false; }
+  return true;
+}
+
+document.addEventListener('click', e => {
+  const term = e.target.closest('[data-term]');
+  if(term){ e.stopPropagation(); showTerm(term.dataset.term); return; }
+  const el = e.target.closest('[data-a]'); if(!el || el.disabled) return;
+  if(el.classList.contains('scrim') && e.target !== el) return;
+  const a = el.dataset.a, v = el.dataset.v;
+  if(a === 'close'){ closeOverlay(); }
+  else if(a === 'go'){ go(v); }
+  else if(a === 'jump'){
+    const j = JOURNEY.find(x => x[0] === v)[3];
+    if(j.screen !== 'onboarding'){ S.onboarded = true; markAllTouched(); }
+    if(j.step === 5) markAllTouched();
+    S.screen = j.screen; if(j.step !== undefined){ S.step = j.step; S.back5 = false; }
+    closeOverlay(); lastJump = v; render();
+    if(j.anchor){ const t = document.getElementById(j.anchor); if(t) $('#scr').scrollTop = t.offsetTop - 16; }
+  }
+  else if(a === 'set'){
+    const f = el.dataset.f;
+    if(f === 'goal' && S.profile.goal !== v){ S.goalTarget = null; S.goalMonths = null; S.goalNote = ''; }
+    if(f === 'time' && S.profile.time !== v) S.goalMonths = null;
+    S.profile[f] = v; S.touched[f] = true; S.sim = null; render(true);
+    const box = $('.whybox'); if(box) box.scrollIntoView({block:'nearest', behavior:'smooth'});
+  }
+  else if(a === 'obNext'){
+    if(S.step === 0 && !validPaycheck()) return;
+    if(S.step === 2 && S.goalTarget !== null && S.goalTarget < 1000){ toast('Enter a target of at least ₹1,000, or use the suggested amount.'); return; }
+    S.touched.money = true;
+    if(S.back5){ S.back5 = false; S.step = 5; } else S.step++;
+    render();
+  }
+  else if(a === 'obBack'){ S.back5 = false; S.step--; render(); }
+  else if(a === 'editQ'){ S.step = +v; S.back5 = true; render(); }
+  else if(a === 'targetReset'){ S.goalTarget = null; S.goalMonths = null; render(true); }
+  else if(a === 'build'){ S.step = 6; render(); }
+  else if(a === 'redo'){ lastJump = null; markAllTouched(); S.screen = 'onboarding'; S.step = 5; S.back5 = false; render(); }
+  else if(a === 'start'){ S.planStarted = true; if(!S.months) addMonth(true); S.screen = 'goals'; render(); toast('Plan started! (Prototype: no money moved.)'); }
+  else if(a === 'month'){ addMonth(true); render(true); toast(`${rs(S.profile.monthly)} invested (demo). Month ${S.months + S.skipped} done.`); }
+  else if(a === 'skip'){ addMonth(false); const gs = goalState(); render(true); toast(gs.onTrack ? 'Skipped. You’re still on track.' : `Skipped. Your goal now lands around ${monthLabel(gs.finish)}.`); }
+  else if(a === 'goalEdit'){ goalSheet(); }
+  else if(a === 'goalSave'){
+    S.goalNote = $('#g-note').value.trim();
+    const amt = +$('#g-amt').value.replace(/\D/g,'');
+    S.goalTarget = amt >= 1000 ? amt : null;
+    S.goalMonths = +$('#g-m').value;
+    closeOverlay(); render(true); toast('Goal updated.');
+  }
+  else if(a === 'goalRaise'){ S.profile.monthly = Math.min(+v, S.profile.income); S.sim = null; render(true); toast(`Monthly amount set to ${rs(S.profile.monthly)}.`); }
+  else if(a === 'goalMove'){ S.goalMonths = +v; render(true); toast(`Target date moved to ${monthLabel(+v)}.`); }
+  else if(a === 'why'){ explainSheet(v); }
+  else if(a === 'simRate'){ S.sim.rate = +v; $('#s-r').value = v; updateSim(); }
+  else if(a === 'simReset'){ S.sim = null; simInit(); render(true); }
+  else if(a === 'simUse'){ S.profile.monthly = S.sim.monthly; render(true); toast(`Your plan now invests ${rs(S.profile.monthly)} a month.`); }
+  else if(a === 'exTime'){ S.exploreTime = v; render(true); }
+  else if(a === 'explain'){ S.explain = v; S.screen = 'ask'; lastJump = null; render(); }
+  else if(a === 'closeExplain'){ S.explain = null; render(true); }
+  else if(a === 'askq'){ lastJump = null; ask(v); }
+  else if(a === 'stop'){ if(busy) busy.abort(); }
+  else if(a === 'clearChat'){ if(busy) busy.abort(); S.chat = []; render(); }
+  else if(a === 'retry'){
+    const i = S.chat.length - 1;
+    if(i >= 1 && S.chat[i-1].me){ const q = S.chat[i-1].text; S.chat.splice(i-1, 2); ask(q); }
+  }
+  else if(a === 'tip'){ S.tip++; render(true); }
+});
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape') closeOverlay();
+  if((e.key === 'Enter' || e.key === ' ') && e.target.matches('[role=button][data-a]')){ e.preventDefault(); e.target.click(); }
+});
+document.addEventListener('submit', e => {
+  if(e.target.id !== 'cf') return;
+  e.preventDefault();
+  const q = $('#cq').value;
+  if(q.trim() && !busy) ask(q);
+});
+$('#reset').addEventListener('click', () => { if(busy && busy.abort) busy.abort(); S = clone(DEFAULT); lastJump = null; render(); });
+
+if(S.screen === 'onboarding' && S.step === 6) S.step = 5;
+render(true);
+})();
+</script>
+</body>
+</html>
