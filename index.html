@@ -179,13 +179,15 @@ input[type=range]{width:100%;accent-color:var(--brand);margin:0}
 .whybtn{border:0;background:var(--brand-soft);color:var(--brand);font-weight:700;font-size:13px;padding:6px 12px;border-radius:99px}
 .ctl{display:flex;flex-direction:column;gap:6px}
 .ctl .row{justify-content:space-between}
-.ctl output{font-weight:700;font-variant-numeric:tabular-nums}
+.ctl output{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
 .tri{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .tri div{background:var(--surface-2);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:2px}
 .tri b{font-size:16px;font-variant-numeric:tabular-nums}
 .tri span{font-size:11px;color:var(--muted);line-height:1.25}
 .tri .end{background:var(--brand-soft)}
 .tri .end b{color:var(--brand)}
+.tri .hypo{border:1.5px dashed var(--sun)}
+.sw.hyp{background:var(--sun-soft);border:1.5px dashed var(--sun)}
 svg.chart text{fill:var(--muted);font-size:10px;font-family:var(--body)}
 
 /* sheet explainer */
@@ -553,11 +555,11 @@ function explainParts(k){
     : `Even a rare ${Math.round(pr.dip*100)}% dip on ${rs(amt)} would be about ${rs(amt*pr.dip)}.`}`;
   const r = blendedRate(p), safeOnly = fv(p.monthly, PRODUCTS.liquid.rate, months), growthHeavy = fv(p.monthly, .10, months);
   const NOT = {
-    liquid: [`Why not put it all in the Steady grower? It could grow more, maybe ${rs(growthHeavy - safeOnly)} more over ${Math.round(months/12*10)/10} years if things went well. But it can fall 20% in a bad year, and ${p.time === '5' ? 'even with time, it helps to have some money that usually moves very little' : 'your goal may arrive before it recovers'}.`, 'Why not a savings account or fixed deposit? That can work too. This has often earned a little more, but it isn’t a bank deposit and doesn’t carry the same deposit insurance.'],
+    liquid: [`Why not put it all in the Steady grower? It could grow more, maybe ${rs(growthHeavy - safeOnly)} more over ${Math.round(months/12*10)/10} years in a hypothetical where it grew a fixed 10.0% a year (a mathematical input, not a forecast). But it can fall 20% in a bad year, and ${p.time === '5' ? 'even with time, it helps to have some money that usually moves very little' : 'your goal may arrive before it recovers'}.`, 'Why not a savings account or fixed deposit? That can work too. This has often earned a little more, but it isn’t a bank deposit and doesn’t carry the same deposit insurance.'],
     index: [`Why not buy a few company shares instead? One company can fall 30–50% even when the market is fine. This spreads your money across 50 large companies selected for the Nifty 50 index at once.`, (() => { const diff = Math.max(fv(per, PRODUCTS.index.rate, months) - fv(per, PRODUCTS.liquid.rate, months), 0), yrs = Math.round(months/12*10)/10;
       return months <= 36
-        ? `Why not keep this in the Safety pot too? You could. Over just ${yrs} years, the growth slice might add only about ${rs(diff)} more, as an illustration. That's why short goals don't need much growth. This slice is here mainly so you get a feel for ups and downs with a small amount.`
-        : `Why not keep it all in the Safety pot? Safer, but slower. Over ${yrs} years this slice could end up about ${rs(diff)} bigger in the Steady grower, as an illustration. Time is what makes the extra swings worth it.`; })()],
+        ? `Why not keep this in the Safety pot too? You could. Over just ${yrs} years, the growth slice might add only about ${rs(diff)} more in a hypothetical that uses fixed past-average rates as mathematical inputs, not forecasts. That's why short goals don't need much growth. This slice is here mainly so you get a feel for ups and downs with a small amount.`
+        : `Why not keep it all in the Safety pot? Safer, but slower. Over ${yrs} years this slice could end up about ${rs(diff)} bigger in the Steady grower in a hypothetical that uses fixed past-average rates as mathematical inputs, not forecasts. Time is what makes the extra swings worth it.`; })()],
     gold: ['Why not more gold? It can stay flat for years. It’s a balancer, not the main engine.', 'Why not skip it? You could. It’s the smallest part of the plan, and it’s there because it can diversify the rest of your plan.'],
     debt: ['Why the Safety pot instead? This has sometimes earned slightly more, but its value can dip when interest rates rise, and withdrawals usually take a little longer. For a first plan, the simpler option does the job.'],
     hybrid: ['Why isn’t it in your plan? It mixes shares and steady lending in one fund. Your plan builds a similar mix from separate pots, so you can see and control each part.'],
@@ -720,7 +722,7 @@ function vHome(){
   const next = S.planStarted
     ? `<div class="card hero"><span class="xs" style="opacity:.8;font-weight:600">YOUR NEXT STEP</span>
         <h3 class="t">${gs.onTrack ? `On track for your ${goalName(p)} by ${monthLabel(gs.T)}` : `Your ${goalName(p)} needs a small tweak`}</h3>
-        <p class="sub small">${gs.onTrack ? `Your next ${rs(p.monthly)} goes in on the 5th, right after payday. You don't need to do anything.` : `At this pace you'd get there around ${monthLabel(gs.finish)}. You decide what to change.`}</p>
+        <p class="sub small">${gs.onTrack ? `${gs.E ? 'Your next' : 'Your first'} ${rs(p.monthly)} goes in on the 5th, right after payday. You don't need to do anything.` : `At this pace you'd get there around ${monthLabel(gs.finish)}. You decide what to change.`} <span style="opacity:.8">(Dates use a hypothetical fixed return, not a forecast.)</span></p>
         <button class="btn light" data-a="go" data-v="goals">${gs.onTrack ? 'See my goal' : 'Review my options'}</button></div>`
     : `<div class="card hero"><span class="xs" style="opacity:.8;font-weight:600">YOUR NEXT STEP</span>
         <h3 class="t">Your starter plan is ready: ${rs(p.monthly)} of your ${rs(p.income)} paycheck towards your ${goalName(p)}</h3>
@@ -748,9 +750,10 @@ function vHome(){
     </div>`;
 }
 
+const pctFmt = v => (Math.round(v * 10) / 10).toFixed(1) + '%';
 function simInit(){
   const p = S.profile;
-  if(!S.sim) S.sim = {monthly:p.monthly, years:Math.max(1, Math.round(goalMonths(p)/12)), rate:Math.round(blendedRate(p)*100)};
+  if(!S.sim) S.sim = {monthly:p.monthly, years:Math.max(1, Math.round(goalMonths(p)/12)), rate:Math.round(blendedRate(p)*1000)/10};
   return S.sim;
 }
 function simOut(){
@@ -763,19 +766,20 @@ function simOut(){
   for(let i = 1; i <= s.years; i++){
     const c = s.monthly*12*i, v = fv(s.monthly, r, 12*i), x = pl + (i-1)*bw + bw*.15, w = bw*.7;
     bars += `<rect x="${x.toFixed(1)}" y="${y(c).toFixed(1)}" width="${w.toFixed(1)}" height="${(y(0)-y(c)).toFixed(1)}" fill="var(--brand)" rx="1.5"/>`;
-    if(v > c) bars += `<rect x="${x.toFixed(1)}" y="${y(v).toFixed(1)}" width="${w.toFixed(1)}" height="${(y(c)-y(v)).toFixed(1)}" fill="var(--sun)" rx="1.5"/>`;
+    if(v > c) bars += `<rect x="${x.toFixed(1)}" y="${y(v).toFixed(1)}" width="${w.toFixed(1)}" height="${(y(c)-y(v)).toFixed(1)}" fill="var(--sun)" fill-opacity=".45" stroke="var(--sun)" stroke-width="1" stroke-dasharray="2 2" rx="1.5"/>`;
   }
   const tg = goalTarget(p), showGoal = tg <= ymax;
   const g5 = fv(s.monthly, r, n + 60) - s.monthly*(n + 60);
   const share = end > 0 ? Math.round(growth / end * 100) : 0;
   const insight = r === 0
     ? 'At 0%, nothing grows: you end with exactly what you put in. That’s roughly what cash under the mattress does, before rising prices eat into it.'
-    : `Growth makes up <b>${share}%</b> of the ending value. At the same assumed rate, 5 more years would make the growth part about <b>${rs(g5)}</b>, ${growth > 0 ? `${(g5/growth).toFixed(1)}×` : 'far'} more, from time alone.`;
+    : `In this hypothetical, growth makes up <b>${share}%</b> of the ending value. Using the same ${pctFmt(s.rate)} input, 5 more years would make the hypothetical growth about <b>${rs(g5)}</b>, ${growth > 0 ? `${(g5/growth).toFixed(1)}×` : 'far'} more, from time alone.`;
   return `
+    <div class="row between"><span class="eyebrow">Illustrative maths</span><span class="pill sun">Hypothetical · not a forecast</span></div>
     <div class="tri">
       <div><span>You put in</span><b>${rs(put)}</b></div>
-      <div><span>Growth at an assumed ${s.rate}%/yr</span><b style="color:var(--sun-ink)">+${rs(growth)}</b></div>
-      <div class="end"><span>Ending value (illustration)</span><b>${rs(end)}</b></div>
+      <div class="hypo"><span>Hypothetical growth at a ${pctFmt(s.rate)} input</span><b style="color:var(--sun-ink)">+${rs(growth)}</b></div>
+      <div class="end hypo"><span>Hypothetical ending value</span><b>${rs(end)}</b></div>
     </div>
     <svg class="chart" viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Contributions and hypothetical growth by year">
       <line x1="${pl}" x2="${W-pr}" y1="${y(0)}" y2="${y(0)}" stroke="var(--line)"/>
@@ -784,20 +788,21 @@ function simOut(){
       <text x="${pl}" y="${H-5}">Year 1</text>
       <text x="${W-pr}" y="${H-5}" text-anchor="end">Year ${s.years}</text>
     </svg>
-    <div class="legend"><span><i class="sw" style="background:var(--brand)"></i>Money you put in</span><span><i class="sw" style="background:var(--sun)"></i>Growth (hypothetical)</span></div>
+    <div class="legend"><span><i class="sw" style="background:var(--brand)"></i>Money you put in</span><span><i class="sw hyp"></i>Hypothetical growth at your ${pctFmt(s.rate)} input</span></div>
     <p class="small" style="margin:0">${insight}</p>`;
 }
 function updateSim(){
   const s = S.sim;
   $('#o-m').textContent = rs(s.monthly) + '/mo';
   $('#o-y').textContent = s.years + (s.years > 1 ? ' years' : ' year');
-  $('#o-r').textContent = s.rate + '% a year';  $('#simOut').innerHTML = simOut();
+  $('#o-r').textContent = pctFmt(s.rate) + '/yr input';
+  $('#simOut').innerHTML = simOut();
   document.querySelectorAll('[data-a="simRate"]').forEach(b => b.setAttribute('aria-pressed', +b.dataset.v === s.rate));
   const u = $('#simUse'); if(u){ u.hidden = s.monthly === S.profile.monthly; u.textContent = `Use ${rs(s.monthly)}/month in my plan`; }
   save();
 }
 function vSim(){
-  const s = simInit(), p = S.profile, mine = Math.round(blendedRate(p)*100);
+  const s = simInit(), p = S.profile, mine = Math.round(blendedRate(p)*1000)/10;
   return `<div class="card" id="sim">
     <div class="row between"><h3 class="t">What if?</h3><button class="linkbtn xs" data-a="simReset">Reset to my plan</button></div>
     <p class="small muted" style="margin:0">Move the sliders to see how <b>how much</b> and <b>how long</b> change the outcome. It's a calculator for learning, not a forecast.</p>
@@ -805,11 +810,12 @@ function vSim(){
       <input type="range" id="s-m" min="100" max="20000" step="100" value="${s.monthly}"></div>
     <div class="ctl"><div class="row"><label for="s-y" class="small">For how long</label><output id="o-y">${s.years} year${s.years>1?'s':''}</output></div>
       <input type="range" id="s-y" min="1" max="30" step="1" value="${s.years}"></div>
-    <div class="ctl"><div class="row"><label for="s-r" class="small">Assumed return <span class="pill sun" style="margin-left:4px">Illustration using an assumed return</span></label><output id="o-r">${s.rate}% a year</output></div>
-      <input type="range" id="s-r" min="0" max="15" step="1" value="${s.rate}" aria-describedby="s-r-note">
-      <div class="seg" role="group" aria-label="Example growth assumptions">
-        ${[[4,'Low example'],[mine,'Your mix’s past avg'],[11,'Shares’ past avg']].map(([v,l]) => `<button data-a="simRate" data-v="${v}" aria-pressed="${s.rate===v}">${l}<br><span class="xs muted">${v}%</span></button>`).join('')}
+    <div class="ctl"><div class="row"><label for="s-r" class="small">Hypothetical yearly return <span class="pill sun" style="margin-left:4px">Illustration using an assumed return</span></label><output id="o-r">${pctFmt(s.rate)}/yr input</output></div>
+      <input type="range" id="s-r" min="0" max="15" step="0.1" value="${s.rate}" aria-describedby="s-r-note">
+      <div class="seg" role="group" aria-label="Example inputs for the hypothetical return">
+        ${[[4,'Low example'],[mine,'Mix’s past avg'],[11,'Shares’ past avg']].map(([v,l]) => `<button data-a="simRate" data-v="${v}" aria-pressed="${s.rate===v}">${l}<br><span class="xs muted">${pctFmt(v)} input</span></button>`).join('')}
       </div>
+      <p class="xs muted" style="margin:0">Presets are example inputs only. Past averages don’t tell you what future returns will be.</p>
       <div class="edu" id="s-r-note">${ICON.info}<span><b>This is a mathematical input, not a prediction or guarantee.</b> The simulator pretends money grows by the same % every year so you can see how the maths works. Real returns change every year, can be negative, and past averages don’t predict the future.</span></div>
     </div>
     <div id="simOut" style="display:flex;flex-direction:column;gap:10px">${simOut()}</div>
@@ -892,9 +898,9 @@ function vExplore(){
       </div>`; }).join('')}
     <div class="card">
       <span class="eyebrow">Lesson 3 · Same money, different ride</span>
-      <p class="small" style="margin:0">₹1,000 a month for 5 years (₹60,000 in total), using past averages as an example:</p>
+      <p class="small" style="margin:0">₹1,000 a month for 5 years (₹60,000 in total). The end values below are hypothetical: they use fixed inputs of ${pctFmt(PRODUCTS.liquid.rate*100)} and ${pctFmt(PRODUCTS.index.rate*100)} a year based on past averages, not predictions.</p>
       <div style="overflow-x:auto"><table class="cmp">
-        <tr><th></th><th>Could end near</th><th>A bad year could look like</th></tr>
+        <tr><th></th><th>Hypothetical end value</th><th>A bad year could look like</th></tr>
         <tr><td><b>Safety pot</b></td><td>${rs(c5)}</td><td>usually a small change</td></tr>
         <tr><td><b>Steady grower</b></td><td>${rs(g5)}</td><td style="color:var(--warn)">−20% or more</td></tr>
       </table></div>
@@ -1064,7 +1070,7 @@ function vAsk(){
         <button class="linkbtn xs" data-a="redo">Edit</button>
       </div>
     </div>
-    ${offline ? `<div class="card tip small" style="padding:12px">The AI coach can't run in this view, so you'll get ready-made answers based on your profile. Open the published page on claude.ai for the full coach.</div>` : ''}
+    ${offline ? `<div class="card tip small" style="padding:12px">AI coach unavailable in this demo environment. Showing contextual ready-made answers instead.</div>` : ''}
     <div class="chips scroll" role="group" aria-label="Learn about">${Object.entries(PRODUCTS).map(([kk,x]) => `<button class="chip" data-a="explain" data-v="${kk}" aria-pressed="${kk===k}">${x.friendly}</button>`).join('')}</div>
     ${explainer}
     ${S.chat.length ? chat : `<div class="starter"><span class="xs muted">Not sure what to ask? Try:</span>${starters.map(q => `<button data-a="askq" data-v="${esc(q)}">${esc(q)}</button>`).join('')}</div>`}`;
@@ -1158,6 +1164,7 @@ function vGoals(){
     return `<h2 class="t">Your goal</h2>${reason}
       <div class="card">
         <p style="margin:0">To get there by ${monthLabel(gs.T)}, it could take about <b>${rs(r100(neededMonthly(p)))}/month</b>. Your plan puts in <b>${rs(p.monthly)}</b>.</p>
+        <p class="xs muted" style="margin:0">Hypothetical: assumes a fixed ${pctFmt(blendedRate(p)*100)} a year as a mathematical input, not a prediction.</p>
         <p class="small muted" style="margin:0">Once you start, you'll see what your money has covered so far, and you'll always be able to change the amount or the date.</p>
         <button class="btn" data-a="go" data-v="plan">See my plan</button>
       </div>`;
@@ -1188,7 +1195,7 @@ function vGoals(){
           <button class="btn sm" style="flex:1" data-a="goalRaise" data-v="${r100(gs.req)}">Invest ${rs(r100(gs.req))}/mo</button>
           <button class="btn ghost sm" style="flex:1" data-a="goalMove" data-v="${gs.finish}">Move date to ${monthLabel(gs.finish)}</button>
         </div>`}
-        <p class="xs muted" style="margin:0">Based on your plan's mix growing steadily, which real markets don't do. Treat the dates as a rough guide.</p>
+        <p class="xs muted" style="margin:0">Hypothetical dates: they assume your plan's mix grows by a fixed ${pctFmt(blendedRate(p)*100)} every year. That's a mathematical input, not a prediction, and real markets don't grow steadily.</p>
       </div>`;
   return `
     <h2 class="t">Your goal</h2>
@@ -1202,9 +1209,9 @@ function vGoals(){
     ${status}
     <div class="card">
       <h3 class="t" style="font-size:16px">This month</h3>
-      <p class="small muted" style="margin:0">Your ${rs(p.monthly)} goes in on the 5th. Life happens, and skipping a month is allowed.</p>
+      <p class="small muted" style="margin:0">${gs.E ? `Your ${rs(p.monthly)} goes in on the 5th.` : `Your plan is on. Your first ${rs(p.monthly)} goes in on the 5th.`} Life happens, and skipping a month is allowed.</p>
       <div class="row" style="gap:8px">
-        <button class="btn sm" style="flex:1.4" data-a="month">Invest ${rs(p.monthly)} (demo)</button>
+        <button class="btn sm" style="flex:1.4" data-a="month">${gs.E ? `Invest ${rs(p.monthly)} (demo)` : `Invest first ${rs(p.monthly)} (demo)`}</button>
         <button class="btn ghost sm" style="flex:1" data-a="skip">Skip this month</button>
       </div>
       <p class="xs muted" style="margin:0">${gs.inv} month${gs.inv === 1 ? '' : 's'} invested${gs.skip ? ` · ${gs.skip} skipped` : ''}. Want to change the amount? <button class="linkbtn xs" data-a="go" data-v="plan">Try What if?</button></p>
@@ -1222,7 +1229,7 @@ function vGoals(){
         <circle cx="${x(gs.E)}" cy="${y(gs.saved)}" r="5" fill="var(--brand)" stroke="var(--surface)" stroke-width="2"/>
         <text x="${pl}" y="${H-6}">${monthLabel(0)}</text>
       </svg>
-      <p class="xs muted" style="margin:0">Solid: where you are. Dotted: where you could be if you keep going. Real values will wobble up and down month to month. What you control is the amount, the date and staying consistent.</p>
+      <p class="xs muted" style="margin:0">Solid: where you are. Dotted: a hypothetical path at a fixed ${pctFmt(blendedRate(p)*100)} a year input, not a forecast. Real values will wobble up and down month to month. What you control is the amount, the date and staying consistent.</p>
     </div>
     <button class="card" style="border:0;text-align:left" data-a="askq" data-v="How am I doing on my goal so far, and what could change the timeline?">
       <div class="row"><span class="bot"><i>G</i></span><strong>Talk it through with GrowwZ</strong></div>
@@ -1356,7 +1363,7 @@ document.addEventListener('click', e => {
   else if(a === 'targetReset'){ S.goalTarget = null; S.goalMonths = null; render(true); }
   else if(a === 'build'){ S.step = 6; render(); }
   else if(a === 'redo'){ lastJump = null; markAllTouched(); S.screen = 'onboarding'; S.step = 5; S.back5 = false; render(); }
-  else if(a === 'start'){ S.planStarted = true; if(!S.months) addMonth(true); S.screen = 'goals'; render(); toast('Plan started! (Prototype: no money moved.)'); }
+  else if(a === 'start'){ S.planStarted = true; S.screen = 'goals'; render(); toast('Plan started! (Prototype: no money moved.)'); }
   else if(a === 'month'){ addMonth(true); render(true); toast(`${rs(S.profile.monthly)} invested (demo). Month ${S.months + S.skipped} done.`); }
   else if(a === 'skip'){ addMonth(false); const gs = goalState(); render(true); toast(gs.onTrack ? 'Skipped. You’re still on track.' : `Skipped. Your goal now lands around ${monthLabel(gs.finish)}.`); }
   else if(a === 'goalEdit'){ goalSheet(); }
